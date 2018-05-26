@@ -53,35 +53,44 @@ export default class Login extends Component<Props> {
   }
 
   login = () => {
-    //alert('login');
+    //alert('login' + this.state.username + this.state.password);
     
-    fetch('http://127.0.0.1:8000/login/', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: this.state.username,
-        password: this.state.password,
-      }),
-    })
-    .then((response) => response.json())
-    .then((res) => {
-      //console.log(res);
-      //alert(res.success);
-      if (res.success === 1){
-        //alert("Login Success");
-        alert(res.data.user_name + " " + res.data.user_id + " " + res.data.name + " " + res.data.email + " " + res.data.phone)
-        user_session = JSON.stringify(res.data);
-        AsyncStorage.setItem('user_session', user_session);
-        this.props.navigator.push({
-          id: 'Memberarea'
-        });
-      }
-      else{alert("Invalid Login details");}
-    })
-    .done();
+    
+
+    try{
+      //alert("a"); 
+      fetch('http://52.27.104.46/login/', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: this.state.username,
+          password: this.state.password,
+        }),
+      })
+      .then((response) => response.json())
+      .then((res) => {
+        //console.log(res);
+        //alert(res.success);
+        //alert("a");
+        if (res.success === 1){
+          //alert("Login Success");
+          alert(res.data.user_name + " " + res.data.user_id + " " + res.data.name + " " + res.data.email + " " + res.data.phone)
+          user_session = JSON.stringify(res.data);
+          AsyncStorage.setItem('user_session', user_session);
+          this.props.navigator.push({
+            id: 'Memberarea'
+          });
+        }
+        else{alert("Invalid Login details");}
+      })
+      .done();
+    }
+    catch(error){
+      alert(error);
+    }
     
   }
   
