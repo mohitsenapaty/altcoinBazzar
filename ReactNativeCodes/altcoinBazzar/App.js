@@ -11,11 +11,23 @@ import {
   StyleSheet,
   Text,
   View,
-
+  AsyncStorage,
+  ActivityIndicator,
 } from 'react-native';
-import { Navigator } from 'react-native-deprecated-custom-components';
+//import { Navigator } from 'react-native-deprecated-custom-components';
 import Login from './app/components/Login';
 import Memberarea from './app/components/Memberarea';
+import Registerarea from './app/components/Registerarea';
+import {StackNavigator} from 'react-navigation';
+
+const NavigationApp = StackNavigator(
+  {
+    Login:{screen: Login},
+    Memberarea:{screen: Memberarea},
+    Registerarea:{screen: Registerarea},
+  },
+  
+);
 
 /*
 const instructions = Platform.select({
@@ -27,13 +39,52 @@ const instructions = Platform.select({
 */
 
 //type Props = {};
-export default class App extends Component {
+
+export default class App extends React.Component {
+  /*
+  constructor() {
+    super();
+    this.state = { isUserLoggedIn: false, isLoaded: false };
+  }
+  componentDidMount() {
+    AsyncStorage.getItem('user_session').then((token) => {
+      this.setState({ isUserLoggedIn: token !== null, isLoaded: true });
+      //if (token !== null){
+        //this.props.navigator.push({
+          //id: 'Memberarea'
+        //});
+      //}
+      
+    });
+  }
+  */
   render() {
-    return (
-      <Navigator initialRoute={{id: 'Login'}} renderScene={this.navigatorRenderScene} />
-    );  
+    //const { navigate } = this.props.navigation;
+    /*
+    if (!this.state.isLoaded){
+      return(
+        <ActivityIndicator />
+      );
+    }
+    else{
+      if (!this.state.isUserLoggedIn){
+        return (
+          <Navigator initialRoute={{id: 'Login'}} renderScene={this.navigatorRenderScene} />
+        );  
+      }
+      else{
+        return (
+          <Navigator initialRoute={{id: 'Memberarea'}} renderScene={this.navigatorRenderScene} />
+        );
+      }
+
+    }*/
+    return(
+      <NavigationApp/>
+    );
   }
 
+  /*
   navigatorRenderScene(route, navigator) {
     _navigator = navigator;
     switch (route.id){
@@ -46,9 +97,11 @@ export default class App extends Component {
           <Memberarea navigator={navigator}/>
         );
     }
-  }
+  }*/
 }
 
 const styles = StyleSheet.create({
 
 });
+
+//export default App;

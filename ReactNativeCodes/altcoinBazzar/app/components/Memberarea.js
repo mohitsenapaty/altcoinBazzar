@@ -12,9 +12,13 @@ import {
   Text,
   View,
   AsyncStorage,
+  TouchableOpacity,
 
 } from 'react-native';
-import { Navigator } from 'react-native-deprecated-custom-components';
+//import { Navigator } from 'react-native-deprecated-custom-components';
+import {StackNavigator} from 'react-navigation';
+//import Login from './Login';
+
 
 
 /*
@@ -27,9 +31,13 @@ const instructions = Platform.select({
 */
 
 //type Props = {};
-export default class Memberarea extends Component {
-  state={
-    'user_session':{}
+export default class Memberarea extends React.Component{
+  
+  constructor(props){
+    super(props);
+    this.state={
+      'user_session':{}
+    };
   }
   componentDidMount(){
     this._loadInitialState().done();
@@ -42,16 +50,32 @@ export default class Memberarea extends Component {
       obj_value = JSON.parse(value);
       this.setState({'user_session':obj_value});
     }
+    else{
+      this.props.navigation.navigate('Login');
+    }
   }
   render() {
+
     return (
       <View style={styles.Container}>
         <Text>Welcome {this.state.user_session.user_name}</Text>
         <Text>Welcome {this.state.user_session.name}</Text>
         <Text>Welcome {this.state.user_session.email}</Text>
         <Text>Welcome {this.state.user_session.phone}</Text>
+        <TouchableOpacity onPress={this.logout} style={styles.ButtonContainer}>
+          <Text>LOG OUT</Text>
+        </TouchableOpacity>
       </View>
     );  
+  }
+  logout = () => {
+    try{
+      AsyncStorage.removeItem('user_session').then((res) => this.props.navigation.navigate('Login'));
+    }
+    catch(error){alert(error);};
+    //navigate('Login');
+    alert("logging out");
+    //this.props.navigation.navigate('Login');
   }
 
 }
@@ -62,5 +86,14 @@ const styles = StyleSheet.create({
     flex:1,
     padding:20,
 
+  },
+  ButtonContainer:{
+    alignSelf: 'stretch',
+    margin: 20,
+    padding: 20,
+    backgroundColor: 'blue',
+    borderWidth: 1,
+    backgroundColor: 'rgba(255,255,255, 0.6)',
+    alignItems: 'center'
   },
 });

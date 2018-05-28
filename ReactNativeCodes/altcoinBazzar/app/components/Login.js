@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Text,
   View,
-  Navigator,
   Image,
   ImageBackground,
   TextInput,
@@ -13,8 +12,9 @@ import {
   AsyncStorage,
 
 } from 'react-native';
-import Memberarea from './Memberarea';
-
+//import Memberarea from './Memberarea';
+//import {StackNavigator} from 'react-navigation';
+import {StackNavigator} from 'react-navigation';
 /*
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' +
@@ -24,9 +24,12 @@ const instructions = Platform.select({
 });
 */
 
+
 type Props = {};
-export default class Login extends Component<Props> {
+export default class Login extends React.Component{
+  
   render() {
+
     return (
       <View style={styles.Container}>
         <ImageBackground source={require('../img/background_cc.jpg')} style={styles.BackgroundImage}>
@@ -40,7 +43,11 @@ export default class Login extends Component<Props> {
                 <Text>LOG IN</Text>
               </TouchableOpacity>
             </View>
-            
+            <View style={styles.RegisterContainer}>
+              <Text>
+                Don't have an account? <Text style={styles.RegisterText} onPress={this.register}>Register Here</Text>
+              </Text>
+            </View>
           </View>
         </ImageBackground>
       </View>
@@ -52,10 +59,25 @@ export default class Login extends Component<Props> {
     this.state = {username:'', password:''};
   }
 
+  componentDidMount(){
+    this._loadInitialState().done();
+  }
+  _loadInitialState = async() => {
+    var value = await AsyncStorage.getItem('user_session');
+    if (value !== null){
+      //json_value = JSON.stringify(value);
+      //alert(json_value);
+      this.props.navigation.navigate('Memberarea');
+    }
+  }
+
+  register = () => {
+    alert("Register");
+    this.props.navigation.navigate('Registerarea');
+  }
+
   login = () => {
     //alert('login' + this.state.username + this.state.password);
-    
-    
 
     try{
       //alert("a"); 
@@ -80,9 +102,7 @@ export default class Login extends Component<Props> {
           alert(res.data.user_name + " " + res.data.user_id + " " + res.data.name + " " + res.data.email + " " + res.data.phone)
           user_session = JSON.stringify(res.data);
           AsyncStorage.setItem('user_session', user_session);
-          this.props.navigator.push({
-            id: 'Memberarea'
-          });
+          this.props.navigation.navigate('Memberarea');
         }
         else{alert("Invalid Login details");}
       })
@@ -146,3 +166,5 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
 });
+
+
