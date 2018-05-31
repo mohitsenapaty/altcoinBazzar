@@ -36,7 +36,8 @@ export default class Memberarea extends React.Component{
   constructor(props){
     super(props);
     this.state={
-      'user_session':{}
+      'user_session':{},
+      'kycDone':'No',
     };
   }
   componentDidMount(){
@@ -65,6 +66,9 @@ export default class Memberarea extends React.Component{
         <TouchableOpacity onPress={this.logout} style={styles.ButtonContainer}>
           <Text>LOG OUT</Text>
         </TouchableOpacity>
+        <TouchableOpacity onPress={this.goToKYCPage} style={styles.ButtonContainer}>
+          <Text>KYC Status:{this.state.kycDone}</Text>
+        </TouchableOpacity>
       </View>
     );  
   }
@@ -76,6 +80,9 @@ export default class Memberarea extends React.Component{
     //navigate('Login');
     alert("logging out");
     //this.props.navigation.navigate('Login');
+  }
+  goToKYCPage = () =>{
+    this.props.navigation.navigate('KYCarea');
   }
 
 }

@@ -18,6 +18,7 @@ import {
 import Login from './app/components/Login';
 import Memberarea from './app/components/Memberarea';
 import Registerarea from './app/components/Registerarea';
+import KYCarea from './app/components/KYCarea';
 import {StackNavigator} from 'react-navigation';
 
 const NavigationApp = StackNavigator(
@@ -25,6 +26,7 @@ const NavigationApp = StackNavigator(
     Login:{screen: Login},
     Memberarea:{screen: Memberarea},
     Registerarea:{screen: Registerarea},
+    KYCarea:{screen:KYCarea},
   },
   
 );
