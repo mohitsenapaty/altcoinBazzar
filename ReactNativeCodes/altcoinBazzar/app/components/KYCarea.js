@@ -25,6 +25,7 @@ export default class KYCarea extends React.Component{
           <View style={styles.Content}>
             <Text style={styles.Logo}> -ALTCOINBAZZAR-
             </Text>
+            <Text>Welcome {this.state.username}</Text>
             <View style={styles.InputContainer}>
               
               <TextInput secureTextEntry={true} onChangeText={(password)=>this.setState({password})} value={this.state.password} style={styles.Input} placeholder='Password'></TextInput>
@@ -65,6 +66,10 @@ export default class KYCarea extends React.Component{
       //json_value = JSON.stringify(value);
       //alert(json_value);
       this.props.navigation.navigate('Login');
+    }
+    else{
+      obj_value = JSON.parse(value);
+      this.setState({'username':obj_value.user_name});
     }
   }
   updateKYC = () =>{
