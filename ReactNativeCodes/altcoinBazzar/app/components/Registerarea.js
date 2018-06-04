@@ -14,6 +14,9 @@ import {
 
 } from 'react-native';
 
+var GLOB_IP_PROD='http://52.27.104.46'
+var GLOB_IP_DEV='http://127.0.0.1:8000'
+
 export default class Registerarea extends React.Component{
   
   render() {
@@ -61,7 +64,7 @@ export default class Registerarea extends React.Component{
 
   registerUser = () => {
     //alert('login' + this.state.username + this.state.password);
-    alert("registerUser");
+    //alert("registerUser");
 
     if (this.state.password === this.state.confPassword){
 

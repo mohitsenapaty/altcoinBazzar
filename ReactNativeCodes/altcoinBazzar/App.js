@@ -19,6 +19,7 @@ import Login from './app/components/Login';
 import Memberarea from './app/components/Memberarea';
 import Registerarea from './app/components/Registerarea';
 import KYCarea from './app/components/KYCarea';
+import Bankarea from './app/components/Bankarea';
 import {StackNavigator} from 'react-navigation';
 
 const NavigationApp = StackNavigator(
@@ -27,10 +28,12 @@ const NavigationApp = StackNavigator(
     Memberarea:{screen: Memberarea},
     Registerarea:{screen: Registerarea},
     KYCarea:{screen:KYCarea},
+    Bankarea:{screen:Bankarea},
   },
   
 );
-
+var GLOB_IP_PROD='http://52.27.104.46'
+var GLOB_IP_DEV='http://127.0.0.1:8000'
 /*
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' +

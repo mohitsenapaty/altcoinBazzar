@@ -15,8 +15,52 @@ import {
 } from 'react-native';
 var ImagePicker = require('react-native-image-picker');
 
+var GLOB_IP_PROD='http://52.27.104.46'
+var GLOB_IP_DEV='http://127.0.0.1:8000'
+
 export default class KYCarea extends React.Component{
   
+  classRender(){
+    if (this.state.kycDone == 'No'){
+      return(
+        <View style={styles.InputContainer}>
+                
+          <TextInput secureTextEntry={true} onChangeText={(password)=>this.setState({password})} value={this.state.password} style={styles.Input} placeholder='Password'></TextInput>
+          <TextInput style={styles.Input} onChangeText={(panNumber)=>this.setState({panNumber})} value={this.state.panNumber}  placeholder='PAN Number'></TextInput>
+          <TextInput style={styles.Input} onChangeText={(adhaarNumber)=>this.setState({adhaarNumber})} value={this.state.adhaarNumber}  placeholder='Adhaar Number'></TextInput>
+          <TextInput style={styles.Input} onChangeText={(adhaarDOB)=>this.setState({adhaarDOB})} value={this.state.adhaarDOB}  placeholder='DDMMYYYY (Date of birth as on AadharCard)'></TextInput>
+          <TextInput style={styles.Input} onChangeText={(panNumber)=>this.setState({address})} value={this.state.address}  placeholder='Flat/Building/Lane Details'></TextInput>
+          <TextInput style={styles.Input} onChangeText={(panNumber)=>this.setState({cityName})} value={this.state.cityName}  placeholder='City Name'></TextInput>
+          <TextInput style={styles.Input} onChangeText={(panNumber)=>this.setState({stateName})} value={this.state.stateName}  placeholder='State'></TextInput>
+          <TextInput style={styles.Input} onChangeText={(panNumber)=>this.setState({pincode})} value={this.state.pincode}  placeholder='pincode'></TextInput>
+          <TextInput style={styles.Input} onChangeText={(panNumber)=>this.setState({residentialStatus})} value={this.state.residentialStatus}  placeholder='Abroad/Local'></TextInput>
+          <TouchableOpacity onPress={this.selectPANImage} style={styles.ButtonContainer}>
+            <Text>PAN Image {this.state.panImageName}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={this.selectAdhaarFrontImage} style={styles.ButtonContainer}>
+            <Text>Adhaar Front Image {this.state.adhaarImageFrontName}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={this.selectPassportImage} style={styles.ButtonContainer}>
+            <Text>Passport Photo Image {this.state.passportImageName}</Text>
+          </TouchableOpacity>              
+          <TouchableOpacity onPress={this.updateKYC} style={styles.ButtonContainer}>
+            <Text>Update</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    else{
+      return(
+        <View style={styles.InputContainer}>
+                
+          <Text>
+            KYC has been completed. You can start buying and selling coins.
+          </Text>
+        </View>
+      );
+    }
+
+  }
   render() {
 
     return (
@@ -25,25 +69,8 @@ export default class KYCarea extends React.Component{
           <View style={styles.Content}>
             <Text style={styles.Logo}> -ALTCOINBAZZAR-
             </Text>
-            <Text>Welcome {this.state.username}</Text>
-            <View style={styles.InputContainer}>
-              
-              <TextInput secureTextEntry={true} onChangeText={(password)=>this.setState({password})} value={this.state.password} style={styles.Input} placeholder='Password'></TextInput>
-              <TextInput style={styles.Input} onChangeText={(panNumber)=>this.setState({panNumber})} value={this.state.panNumber}  placeholder='PAN Number'></TextInput>
-              <TextInput style={styles.Input} onChangeText={(adhaarNumber)=>this.setState({adhaarNumber})} value={this.state.adhaarNumber}  placeholder='Adhaar Number'></TextInput>
-              <TouchableOpacity onPress={this.selectPANImage} style={styles.ButtonContainer}>
-                <Text>PAN Image {this.state.panImageName}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={this.selectAdhaarFrontImage} style={styles.ButtonContainer}>
-                <Text>Adhaar Front Image {this.state.adhaarImageFrontName}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={this.selectAdhaarBackImage} style={styles.ButtonContainer}>
-                <Text>Adhaar Back Image {this.state.adhaarImageBackName}</Text>
-              </TouchableOpacity>              
-              <TouchableOpacity onPress={this.updateKYC} style={styles.ButtonContainer}>
-                <Text>Update</Text>
-              </TouchableOpacity>
-            </View>
+            <Text>Welcome {this.state.username} {this.state.user_id}</Text>
+            {this.classRender()}
           </View>
         </ImageBackground>
       </ScrollView>
@@ -52,8 +79,10 @@ export default class KYCarea extends React.Component{
 
   constructor(props){
     super(props);
-    this.state = {username:'', password:'', panNumber:'', adhaarNumber:'', panImage:'', adhaarImageFront:'', adhaarImageBack:'',
-      panImageName:'', adhaarImageFrontName:'', adhaarImageBackName:''
+    this.state = {username:'', user_id:'', password:'', 
+      panNumber:'', adhaarNumber:'', panImage:'', adhaarImageFront:'', passportImage:'',
+      panImageName:'', adhaarImageFrontName:'', passportImageName:'', kycDone:'No', 
+      adhaarDOB:'', address:'', cityName:'', stateName:'', pincode:'', residentialStatus:''
     };
   }
 
@@ -61,6 +90,7 @@ export default class KYCarea extends React.Component{
     this._loadInitialState().done();
   }
   _loadInitialState = async() => {
+    //search for KYC status using API
     var value = await AsyncStorage.getItem('user_session');
     if (value === null){
       //json_value = JSON.stringify(value);
@@ -70,7 +100,47 @@ export default class KYCarea extends React.Component{
     else{
       obj_value = JSON.parse(value);
       this.setState({'username':obj_value.user_name});
+      this.setState({'user_id':obj_value.user_id});
     }
+    
+    try{
+      //alert("a"); 
+      fetch(GLOB_IP_DEV+'/getKYCStatus/', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: this.state.user_id,
+        }),
+      })
+      .then((response) => response.json())
+      .then((res) => {
+        //console.log(res);
+        //alert(res.success);
+        //alert("a");
+        if (res.success === 1){
+          //alert("Login Success");
+          //alert(res.data.user_name + " " + res.data.user_id + " " + res.data.name + " " + res.data.email + " " + res.data.phone)
+          if (res.data.kyc_status === false){
+            //no kyc status
+            this.state.kycDone = 'No';
+          }
+          else{
+            //kyc status done
+            this.state.kycDone = 'Yes';
+          }
+          //alert(this.state.kycDone);
+        }
+        else{alert("Error fetching details.");}
+      })
+      .done();
+    }
+    catch(error){
+      alert(error);
+    }
+    
   }
   updateKYC = () =>{
     alert("KYC updated");
@@ -135,7 +205,7 @@ export default class KYCarea extends React.Component{
       }
     });
   }
-  selectAdhaarBackImage = () => {
+  selectPassportImage = () => {
     //alert("Adhaar back Image");
 
     ImagePicker.showImagePicker({quality: 1.0, storageOptions: {skipBackup: true}}, (response) => {
@@ -157,10 +227,10 @@ export default class KYCarea extends React.Component{
         //let source = { uri: 'data:image/jpeg;base64,' + response.data };
 
         this.setState({
-          adhaarImageBack: source
+          passportImage: source
         });
         this.setState({
-          adhaarImageBackName: source_img
+          passportImageName: source_img
         });
       }
     });

@@ -23,7 +23,8 @@ const instructions = Platform.select({
     'Shake or press menu button for dev menu',
 });
 */
-
+var GLOB_IP_PROD='http://52.27.104.46'
+var GLOB_IP_DEV='http://127.0.0.1:8000'
 
 type Props = {};
 export default class Login extends React.Component{
@@ -81,7 +82,7 @@ export default class Login extends React.Component{
 
     try{
       //alert("a"); 
-      fetch('http://52.27.104.46/login/', {
+      fetch(GLOB_IP_DEV+'/login/', {
         method: 'POST',
         headers: {
           Accept: 'application/json',

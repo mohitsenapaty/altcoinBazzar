@@ -18,7 +18,8 @@ import {
 //import { Navigator } from 'react-native-deprecated-custom-components';
 import {StackNavigator} from 'react-navigation';
 //import Login from './Login';
-
+var GLOB_IP_PROD='http://52.27.104.46'
+var GLOB_IP_DEV='http://127.0.0.1:8000'
 
 
 /*
@@ -44,16 +45,60 @@ export default class Memberarea extends React.Component{
     this._loadInitialState().done();
   }
   _loadInitialState = async() => {
+    //search for KYC/bank status using async
     var value = await AsyncStorage.getItem('user_session');
     if (value !== null){
       //json_value = JSON.stringify(value);
       //alert(json_value);
       obj_value = JSON.parse(value);
       this.setState({'user_session':obj_value});
+
     }
     else{
       this.props.navigation.navigate('Login');
     }
+    
+    try{
+      //alert("a"); 
+      fetch(GLOB_IP_DEV + '/getKYCStatus/', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: this.state.user_session.user_id,
+          
+        }),
+      })
+      .then((response) => response.json())
+      .then((res) => {
+        //console.log(res);
+        //alert(res.success);
+        //alert("a");
+        if (res.success === 1){
+          //alert("Login Success");
+          //alert(res.data.user_name + " " + res.data.user_id + " " + res.data.name + " " + res.data.email + " " + res.data.phone)
+          if (res.data.kyc_status === false){
+            //no kyc status
+            alert("No KYC Done");
+            this.state.kycDone = "No";
+          }
+          else{
+            //kyc status done
+            alert("KYC Done");
+            this.state.kycDone = "Yes";
+          }
+
+        }
+        else{alert("Error fetching details.");}
+      })
+      .done();
+    }
+    catch(error){
+      alert(error);
+    }
+    
   }
   render() {
 
@@ -69,6 +114,9 @@ export default class Memberarea extends React.Component{
         <TouchableOpacity onPress={this.goToKYCPage} style={styles.ButtonContainer}>
           <Text>KYC Status:{this.state.kycDone}</Text>
         </TouchableOpacity>
+        <TouchableOpacity onPress={this.goToBankPage} style={styles.ButtonContainer}>
+          <Text>Payment details</Text>
+        </TouchableOpacity>
       </View>
     );  
   }
@@ -83,6 +131,9 @@ export default class Memberarea extends React.Component{
   }
   goToKYCPage = () =>{
     this.props.navigation.navigate('KYCarea');
+  }
+  goToBankPage = () =>{
+    this.props.navigation.navigate('Bankarea');
   }
 
 }
