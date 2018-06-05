@@ -100,7 +100,7 @@ export default class Login extends React.Component{
         //alert("a");
         if (res.success === 1){
           //alert("Login Success");
-          alert(res.data.user_name + " " + res.data.user_id + " " + res.data.name + " " + res.data.email + " " + res.data.phone)
+          //alert(res.data.user_name + " " + res.data.user_id + " " + res.data.name + " " + res.data.email + " " + res.data.phone)
           user_session = JSON.stringify(res.data);
           AsyncStorage.setItem('user_session', user_session);
           this.props.navigation.navigate('Memberarea');

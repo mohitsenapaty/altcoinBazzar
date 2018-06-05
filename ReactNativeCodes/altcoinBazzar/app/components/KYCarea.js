@@ -13,13 +13,35 @@ import {
   AsyncStorage,
 
 } from 'react-native';
+import ActionBar from 'react-native-action-bar';
+import DrawerLayout from 'react-native-drawer-layout';
+import Menu from './Menu';
+
 var ImagePicker = require('react-native-image-picker');
 
 var GLOB_IP_PROD='http://52.27.104.46'
 var GLOB_IP_DEV='http://127.0.0.1:8000'
 
+
 export default class KYCarea extends React.Component{
-  
+  goToProfilePage = () =>{
+    this.props.navigation.navigate('Memberarea');
+  }
+  goToKYCPage = () =>{
+    this.props.navigation.navigate('KYCarea');
+  }
+  goToBankPage = () =>{
+    this.props.navigation.navigate('Bankarea');
+  }
+  goToMarketPage = () =>{
+    this.props.navigation.navigate('Marketarea');
+  }
+  goToWalletPage = () =>{
+    this.props.navigation.navigate('Walletarea');
+  }
+  goToTradePage = () =>{
+    this.props.navigation.navigate('Tradearea');
+  }
   classRender(){
     if (this.state.kycDone == 'No'){
       return(
@@ -64,16 +86,37 @@ export default class KYCarea extends React.Component{
   render() {
 
     return (
-      <ScrollView style={styles.Container}>
-        <ImageBackground source={require('../img/background_cc.jpg')} style={styles.BackgroundImage}>
-          <View style={styles.Content}>
-            <Text style={styles.Logo}> -ALTCOINBAZZAR-
-            </Text>
-            <Text>Welcome {this.state.username} {this.state.user_id}</Text>
-            {this.classRender()}
-          </View>
-        </ImageBackground>
-      </ScrollView>
+      <DrawerLayout
+          drawerWidth={300}
+          ref={drawerElement => {
+            this.DRAWER = drawerElement;
+          }}
+          drawerPosition={DrawerLayout.positions.left}
+          onDrawerOpen={this.setDrawerState}
+          onDrawerClose={this.setDrawerState}
+          renderNavigationView={() => <Menu _goToBankPage={()=>this.goToBankPage()}
+              _goToProfilePage={()=>this.goToProfilePage()}
+              _goToMarketPage={()=>this.goToMarketPage()}
+              _goToWalletPage={()=>this.goToWalletPage()}
+              _goToTradePage={()=>this.goToTradePage()}
+            />}
+        >
+        <ActionBar
+            containerStyle={styles.bar}
+            backgroundColor="#33cc33"
+            leftIconName={'menu'}
+            onLeftPress={this.toggleDrawer}/>
+        <ScrollView style={styles.Container}>
+          <ImageBackground source={require('../img/background_cc.jpg')} style={styles.BackgroundImage}>
+            <View style={styles.Content}>
+              <Text style={styles.Logo}> -ALTCOINBAZZAR-
+              </Text>
+              <Text>Welcome {this.state.username} {this.state.user_id}</Text>
+              {this.classRender()}
+            </View>
+          </ImageBackground>
+        </ScrollView>
+      </DrawerLayout>
     );
   }
 
@@ -84,8 +127,28 @@ export default class KYCarea extends React.Component{
       panImageName:'', adhaarImageFrontName:'', passportImageName:'', kycDone:'No', 
       adhaarDOB:'', address:'', cityName:'', stateName:'', pincode:'', residentialStatus:''
     };
+    this.toggleDrawer = this.toggleDrawer.bind(this);
+    this.setDrawerState = this.setDrawerState.bind(this);
+
+    this.goToProfilePage = this.goToProfilePage.bind(this);
+    this.goToBankPage = this.goToBankPage.bind(this);
+    this.goToMarketPage = this.goToMarketPage.bind(this);
+    this.goToWalletPage = this.goToWalletPage.bind(this);
+    this.goToTradePage = this.goToTradePage.bind(this);
+  }
+  setDrawerState() {
+    this.setState({
+      drawerClosed: !this.state.drawerClosed,
+    });
   }
 
+  toggleDrawer = () => {
+    if (this.state.drawerClosed) {
+      this.DRAWER.openDrawer();
+    } else {
+      this.DRAWER.closeDrawer();
+    }
+  }
   componentDidMount(){
     this._loadInitialState().done();
   }

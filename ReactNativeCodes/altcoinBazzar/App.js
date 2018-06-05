@@ -20,6 +20,9 @@ import Memberarea from './app/components/Memberarea';
 import Registerarea from './app/components/Registerarea';
 import KYCarea from './app/components/KYCarea';
 import Bankarea from './app/components/Bankarea';
+import Marketarea from './app/components/Marketarea';
+import Walletarea from './app/components/Walletarea';
+import Tradearea from './app/components/Tradearea';
 import {StackNavigator} from 'react-navigation';
 
 const NavigationApp = StackNavigator(
@@ -29,6 +32,15 @@ const NavigationApp = StackNavigator(
     Registerarea:{screen: Registerarea},
     KYCarea:{screen:KYCarea},
     Bankarea:{screen:Bankarea},
+    Marketarea:{screen:Marketarea},
+    Walletarea:{screen:Walletarea},
+    Tradearea:{screen:Tradearea},
+  },
+  {
+    headerMode: 'none',
+    navigationOptions: {
+        headerVisible: false,
+    }
   },
   
 );

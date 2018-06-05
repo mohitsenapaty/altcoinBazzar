@@ -25,16 +25,43 @@ import Menu from './Menu';
 var GLOB_IP_PROD='http://52.27.104.46'
 var GLOB_IP_DEV='http://127.0.0.1:8000'
 
+
+/*
+const instructions = Platform.select({
+  ios: 'Press Cmd+R to reload,\n' +
+    'Cmd+D or shake for dev menu',
+  android: 'Double tap R on your keyboard to reload,\n' +
+    'Shake or press menu button for dev menu',
+});
+*/
+
 //type Props = {};
-export default class Memberarea extends React.Component{
-  
+export default class Marketarea extends React.Component{
+  goToProfilePage = () =>{
+    this.props.navigation.navigate('Memberarea');
+  }
+  goToKYCPage = () =>{
+    this.props.navigation.navigate('KYCarea');
+  }
+  goToBankPage = () =>{
+    this.props.navigation.navigate('Bankarea');
+  }
+  goToMarketPage = () =>{
+    this.props.navigation.navigate('Marketarea');
+  }
+  goToWalletPage = () =>{
+    this.props.navigation.navigate('Walletarea');
+  }
+  goToTradePage = () =>{
+    this.props.navigation.navigate('Tradearea');
+  }
   constructor(props){
     super(props);
     this.state={
       'user_session':{},
       'kycDone':'No',
-      'drawerClosed':true,
     };
+
     this.toggleDrawer = this.toggleDrawer.bind(this);
     this.setDrawerState = this.setDrawerState.bind(this);
 
@@ -102,10 +129,10 @@ export default class Memberarea extends React.Component{
           }
           else{
             //kyc status done
-            alert("KYC Done");
+            //alert("KYC Done");
             this.state.kycDone = "Yes";
           }
-          AsyncStorage.setItem('kyc_status', this.state.kycDone);
+
         }
         else{alert("Error fetching details.");}
       })
@@ -116,10 +143,25 @@ export default class Memberarea extends React.Component{
     }
     
   }
+  classRender(){
+    if (this.state.kycDone=="Yes"){
+      return(
+        <View>
+          <Text>You can trade.</Text>
+        </View>
+      );
+    }
+    else{
+      return(
+        <View>
+          <Text>You can not trade. Complete KYC before trading.</Text>
+        </View>
+      );
+    }
+  }
   render() {
 
     return (
-      
       <DrawerLayout
           drawerWidth={300}
           ref={drawerElement => {
@@ -135,54 +177,29 @@ export default class Memberarea extends React.Component{
               _goToTradePage={()=>this.goToTradePage()}
             />}
         >
-          <ActionBar
-            containerStyle={styles.bar}
-            backgroundColor="#33cc33"
-            leftIconName={'menu'}
-            onLeftPress={this.toggleDrawer}/>
-        <ScrollView style={styles.Container}>
-        
-        <Text>Welcome {this.state.user_session.user_name}</Text>
-        <Text>Welcome {this.state.user_session.name}</Text>
-        <Text>Welcome {this.state.user_session.email}</Text>
-        <Text>Welcome {this.state.user_session.phone}</Text>
-        <TouchableOpacity onPress={this.logout} style={styles.ButtonContainer}>
-          <Text>LOG OUT</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={this.goToKYCPage} style={styles.ButtonContainer}>
-          <Text>KYC Status:{this.state.kycDone}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={this.goToBankPage} style={styles.ButtonContainer}>
-          <Text>Payment details</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={this.goToMarketPage} style={styles.ButtonContainer}>
-          <Text>Market</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={this.goToWalletPage} style={styles.ButtonContainer}>
-          <Text>Wallet</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={this.goToTradePage} style={styles.ButtonContainer}>
-          <Text>Trade</Text>
-        </TouchableOpacity>        
-      </ScrollView>
-    </DrawerLayout>
-      
+        <ActionBar
+              containerStyle={styles.bar}
+              backgroundColor="#33cc33"
+              leftIconName={'menu'}
+              onLeftPress={this.toggleDrawer}/>
+        <View style={styles.Container}>
+          <Text>Welcome {this.state.user_session.user_name}</Text>
+          <Text>Welcome {this.state.user_session.name}</Text>
+          <Text>Welcome {this.state.user_session.email}</Text>
+          <Text>Welcome {this.state.user_session.phone}</Text>
+          {this.classRender()}       
+        </View>
+      </DrawerLayout>
     );  
   }
   logout = () => {
     try{
-      AsyncStorage.removeItem('kyc_status')
-        .then((res)=>{AsyncStorage.removeItem('user_session')
-          .then((res1) => this.props.navigation.navigate('Login'));})
-      //AsyncStorage.removeItem('user_session').then((res) => this.props.navigation.navigate('Login'));
+      AsyncStorage.removeItem('user_session').then((res) => this.props.navigation.navigate('Login'));
     }
     catch(error){alert(error);};
     //navigate('Login');
-    //alert("logging out");
+    alert("logging out");
     //this.props.navigation.navigate('Login');
-  }
-  goToProfilePage = () =>{
-    this.props.navigation.navigate('Memberarea');
   }
   goToKYCPage = () =>{
     this.props.navigation.navigate('KYCarea');
@@ -208,13 +225,6 @@ const styles = StyleSheet.create({
     flex:1,
     padding:20,
 
-  },
-  screen: {
-    backgroundColor: '#33cc33',
-    flex: 1,
-    paddingTop: 10,
-    alignItems: 'center',
-    //padding: 10
   },
   ButtonContainer:{
     alignSelf: 'stretch',
