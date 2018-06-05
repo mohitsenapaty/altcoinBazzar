@@ -27,8 +27,8 @@ export default class KYCarea extends React.Component{
                 
           <TextInput secureTextEntry={true} onChangeText={(password)=>this.setState({password})} value={this.state.password} style={styles.Input} placeholder='Password'></TextInput>
           <TextInput style={styles.Input} onChangeText={(panNumber)=>this.setState({panNumber})} value={this.state.panNumber}  placeholder='PAN Number'></TextInput>
-          <TextInput style={styles.Input} onChangeText={(adhaarNumber)=>this.setState({adhaarNumber})} value={this.state.adhaarNumber}  placeholder='Adhaar Number'></TextInput>
-          <TextInput style={styles.Input} onChangeText={(adhaarDOB)=>this.setState({adhaarDOB})} value={this.state.adhaarDOB}  placeholder='DDMMYYYY (Date of birth as on AadharCard)'></TextInput>
+          <TextInput style={styles.Input} onChangeText={(aadharNumber)=>this.setState({aadharNumber})} value={this.state.aadharNumber}  placeholder='Adhaar Number'></TextInput>
+          <TextInput style={styles.Input} onChangeText={(aadharDOB)=>this.setState({aadharDOB})} value={this.state.aadharDOB}  placeholder='DDMMYYYY (Date of birth as on AadharCard)'></TextInput>
           <TextInput style={styles.Input} onChangeText={(panNumber)=>this.setState({address})} value={this.state.address}  placeholder='Flat/Building/Lane Details'></TextInput>
           <TextInput style={styles.Input} onChangeText={(panNumber)=>this.setState({cityName})} value={this.state.cityName}  placeholder='City Name'></TextInput>
           <TextInput style={styles.Input} onChangeText={(panNumber)=>this.setState({stateName})} value={this.state.stateName}  placeholder='State'></TextInput>
@@ -38,7 +38,7 @@ export default class KYCarea extends React.Component{
             <Text>PAN Image {this.state.panImageName}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={this.selectAdhaarFrontImage} style={styles.ButtonContainer}>
-            <Text>Adhaar Front Image {this.state.adhaarImageFrontName}</Text>
+            <Text>Adhaar Front Image {this.state.aadharImageFrontName}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={this.selectPassportImage} style={styles.ButtonContainer}>
             <Text>Passport Photo Image {this.state.passportImageName}</Text>
@@ -80,9 +80,9 @@ export default class KYCarea extends React.Component{
   constructor(props){
     super(props);
     this.state = {username:'', user_id:'', password:'', 
-      panNumber:'', adhaarNumber:'', panImage:'', adhaarImageFront:'', passportImage:'',
-      panImageName:'', adhaarImageFrontName:'', passportImageName:'', kycDone:'No', 
-      adhaarDOB:'', address:'', cityName:'', stateName:'', pincode:'', residentialStatus:''
+      panNumber:'', aadharNumber:'', panImage:'', aadharImageFront:'', passportImage:'',
+      panImageName:'', aadharImageFrontName:'', passportImageName:'', kycDone:'No', 
+      aadharDOB:'', address:'', cityName:'', stateName:'', pincode:'', residentialStatus:''
     };
   }
 
@@ -197,10 +197,10 @@ export default class KYCarea extends React.Component{
         //let source = { uri: 'data:image/jpeg;base64,' + response.data };
         //alert(response.fileSize);
         this.setState({
-          adhaarImageFront: source
+          aadharImageFront: source
         });
         this.setState({
-          adhaarImageFrontName: source_img
+          aadharImageFrontName: source_img
         });
       }
     });
