@@ -7,10 +7,14 @@ var app = express();
 var loginRouter = express.Router();
 var registerUserRouter = express.Router();
 var getKYCStatusRouter = express.Router();
+var getAllPayMethodsRouter = express.Router();
 var updateKYCRouter = express.Router();
 var uploadImageRouter = express.Router();
 var SHA224 = require('sha224');
 var multer = require('multer')
+
+const file_upload_dest_dev = '/Users/msenapaty/Documents/react_native_ios/altcoinBazzar/NodeJSCodes/';
+const file_upload_dest = '/var/www/altcoinBazzar/'
 
 loginRouter.post('/', function(req, resp, next) { 
   //console.log(req);
@@ -107,9 +111,59 @@ getKYCStatusRouter.post('/', function(req, resp, next) {
   });
 });
 
+getAllPayMethodsRouter.post('/', function(req, resp, next) {
+  //console.log(req);
+  console.log(req.body);
+  //console.log(next);
+
+  var userid = req.body.user_id;
+  var userID = parseInt(userid, 10);
+
+  var login_data = {'success':0,'data':{'imps':{}, 'upi':{}, 'paytm':{}}};
+  db_client.query("SELECT * FROM general_payment_method WHERE user_id=$1;", [userID], function(err, res)
+  {
+    if (err){console.log(err); resp.send(login_data);}
+    else
+    { //console.log(res);
+      console.log(res.rows.length);
+      if (res.rows.length>=1){
+        //console.log("successful login");
+        //banks added now find out all the payment methods
+        db_client.query("SELECT * FROM imps_payment_method WHERE user_id=$1 AND status='A';",[userID],function(err_imps, res_imps){
+          if (err_imps){console.log(err_imps);resp.send(login_data);}
+          if (res_imps.rows.length >= 1){
+            login_data.success.imps = res_imps.rows[0];
+          }
+          db_client.query("SELECT * FROM upi_payment_method WHERE user_id=$1 AND status='A';",[userID],function(err_upi, res_upi){
+            if (err_upi){console.log(err_upi);resp.send(login_data);}
+            else{
+              if (res_upi.rows.length >= 1) login_data.success.upi = res_upi.rows[0];
+            }
+            db_client.query("SELECT * FROM paytm_payment_method WHERE user_id=$1 AND status='A';",[userID],function(err_paytm, res_paytm){
+              if (err_paytm){console.log(err_paytm);resp.send(login_data);}
+              else{
+                if (res_paytm.rows.length >= 1) login_data.success.paytm = res_paytm.rows[0];
+                login_data['success'] = 1;
+                resp.send(login_data);
+              }
+            });
+          });
+        });
+        //login_data['data'] = res.rows[0];
+        //login_data['success'] = 1;
+      }
+      else{
+        console.log("Banks Not Added");
+      }
+      //resp.send(login_data);
+
+    }
+  });
+});
+
 
 const upload = multer({
-    dest:'/home/sanket/altcoinBazzar/NodeJSCodes/', 
+    dest: file_upload_dest,
     limits: {fileSize: 5242880, files: 1},
     fileFilter:  (req, file, callback) => {
         if (!file.originalname.match(/\.(jpg|jpeg|png|pdf)$/)) {
@@ -187,6 +241,7 @@ app.use('/registerUser', registerUserRouter);
 app.use('/getKYCStatus', getKYCStatusRouter);
 app.use('/updateKYC', updateKYCRouter);
 app.use('/uploadImage', uploadImageRouter);
+app.use('/getAllPayMethods', getAllPayMethodsRouter);
 
 app.listen(8000, () => {
   console.log('Server started!');

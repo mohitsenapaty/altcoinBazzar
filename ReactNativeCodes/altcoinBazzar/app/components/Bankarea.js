@@ -56,7 +56,7 @@ export default class Bankarea extends React.Component{
           <TextInput style={styles.Input} onChangeText={(ifscCode)=>this.setState({ifscCode})} value={this.state.ifscCode}  placeholder='ifsc Code'></TextInput>
           <TextInput style={styles.Input} onChangeText={(accountType)=>this.setState({accountType})} value={this.state.accountType}  placeholder='Account type'></TextInput>
           <TouchableOpacity onPress={this.updateBank} style={styles.ButtonContainer}>
-            <Text>Update Payment</Text>
+            <Text>Update IMPS</Text>
           </TouchableOpacity>
         </View>
       );
@@ -71,7 +71,7 @@ export default class Bankarea extends React.Component{
           <TextInput secureTextEntry={true} onChangeText={(password)=>this.setState({password})} value={this.state.password} style={styles.Input} placeholder='Password'></TextInput>
           <TextInput style={styles.Input} onChangeText={(paytmNumber)=>this.setState({paytmNumber})} value={this.state.paytmNumber}  placeholder='PAYTM number'></TextInput>
           <TouchableOpacity onPress={this.updateBank} style={styles.ButtonContainer}>
-            <Text>Update Payment</Text>
+            <Text>Update PAYTM</Text>
           </TouchableOpacity>
         </View>
       );
@@ -86,7 +86,7 @@ export default class Bankarea extends React.Component{
           <TextInput secureTextEntry={true} onChangeText={(password)=>this.setState({password})} value={this.state.password} style={styles.Input} placeholder='Password'></TextInput>
           <TextInput style={styles.Input} onChangeText={(upiAddress)=>this.setState({upiAddress})} value={this.state.upiAddress}  placeholder='PAYTM number'></TextInput>
           <TouchableOpacity onPress={this.updateBank} style={styles.ButtonContainer}>
-            <Text>Update Payment</Text>
+            <Text>Update UPI</Text>
           </TouchableOpacity>
         </View>
       );
@@ -139,7 +139,9 @@ export default class Bankarea extends React.Component{
     super(props);
     this.state = {username:'', password:'', defaultPayMethod:'', 
     payMethodAdded:'N', paymentType:'IMPS', 'impsNumber':'', 
-    'ifscCode':'', 'accountType':'', 'upiAddress':'', paytmNumber:''};
+    'ifscCode':'', 'accountType':'', 'upiAddress':'', paytmNumber:'',
+    'user_id':'',
+  };
     this.toggleDrawer = this.toggleDrawer.bind(this);
     this.setDrawerState = this.setDrawerState.bind(this);
 
@@ -176,10 +178,49 @@ export default class Bankarea extends React.Component{
     else{
       obj_value = JSON.parse(value);
       this.setState({'username':obj_value.user_name});
+      this.setState({'user_id':obj_value.user_id});
 
       //handle logic for default paymethod (both should be stored in AsyncStorage)
       //if payMethodAdded == N defaultPayMethod is empty string
       //else payMethodAdded == Y fetch from the website.
+    }
+    //connect to bank using fetch api.
+    try{
+      //alert("a"); 
+      fetch(GLOB_IP_DEV+'/getKYCStatus/', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: this.state.user_id,
+        }),
+      })
+      .then((response) => response.json())
+      .then((res) => {
+        //console.log(res);
+        //alert(res.success);
+        //alert("a");
+        if (res.success === 1){
+          //alert("Login Success");
+          //alert(res.data.user_name + " " + res.data.user_id + " " + res.data.name + " " + res.data.email + " " + res.data.phone)
+          if (res.data.kyc_status === false){
+            //no kyc status
+            this.state.kycDone = 'No';
+          }
+          else{
+            //kyc status done
+            this.state.kycDone = 'Yes';
+          }
+          //alert(this.state.kycDone);
+        }
+        else{alert("Error fetching details.");}
+      })
+      .done();
+    }
+    catch(error){
+      alert(error);
     }
   }
   updateBank = () =>{

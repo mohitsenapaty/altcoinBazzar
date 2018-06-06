@@ -144,10 +144,17 @@ export default class Marketarea extends React.Component{
     
   }
   classRender(){
-    if (this.state.kycDone=="Yes"){
+    if (this.state.kycDone!="Yes"){
       return(
-        <View>
-          <Text>You can trade.</Text>
+        <View style={styles.CoinContainer}>
+          <View style={styles.CoinRow}>
+            <Text>TICKER </Text>
+            <Text>NAME </Text>
+            <Text>BEST BID </Text>
+            <Text>BEST ASK </Text>
+            <Text>LAST TRADE </Text>
+            <Text>ACTION </Text>
+          </View>
         </View>
       );
     }
@@ -235,4 +242,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255, 0.6)',
     alignItems: 'center'
   },
+  CoinContainer:{
+    flex:1,
+    flexDirection:'column',
+    justifyContent:'center',
+  },
+  CoinRow:{
+    flex:1,
+    flexDirection:'row',
+  }
 });
