@@ -138,10 +138,11 @@ export default class Bankarea extends React.Component{
   constructor(props){
     super(props);
     this.state = {username:'', password:'', defaultPayMethod:'', 
-    payMethodAdded:'N', paymentType:'IMPS', 'impsNumber':'', 
+    payMethodAdded:'No', paymentType:'IMPS', 'impsNumber':'', 
     'ifscCode':'', 'accountType':'', 'upiAddress':'', paytmNumber:'',
-    'user_id':'',
-  };
+    'user_id':'', bank_name:'', AccountHolderName:'',
+    'HasIMPS':'No', 'HasUPI':'No', 'HasPAYTM':'No',
+    };
     this.toggleDrawer = this.toggleDrawer.bind(this);
     this.setDrawerState = this.setDrawerState.bind(this);
 
@@ -207,11 +208,11 @@ export default class Bankarea extends React.Component{
           //alert(res.data.user_name + " " + res.data.user_id + " " + res.data.name + " " + res.data.email + " " + res.data.phone)
           if (res.data.kyc_status === false){
             //no kyc status
-            this.state.kycDone = 'No';
+            this.setState({'kycDone':'No'});
           }
           else{
             //kyc status done
-            this.state.kycDone = 'Yes';
+            this.setState({'kycDone':'Yes'});
           }
           //alert(this.state.kycDone);
         }
@@ -226,18 +227,104 @@ export default class Bankarea extends React.Component{
   updateBank = () =>{
     //alert("Update bank");
     if (this.state.paymentType == 'IMPS'){
-
+      try{
+        //alert("a"); 
+        fetch(GLOB_IP_DEV+'/updateIMPS/', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_id: this.state.user_id,
+            bank_name: this.state.bank_name,
+            ifsc: this.state.ifscCode,
+            account_no: this.state.impsNumber,
+            account_type: this.state.accountType,
+            account_holder_name: this.state.AccountHolderName
+          }),
+        })
+        .then((response) => response.json())
+        .then((res) => {
+          //console.log(res);
+          //alert(res.success);
+          //alert("a");
+          if (res.success === 1){
+            alert("IMPS payment method added successfully.");
+            this.setState()
+          }
+          else{alert("Error fetching details.");}
+        })
+        .done();
+      }
+      catch(error){
+        alert(error);
+      }
     }
     else if (this.state.paymentType == 'UPI'){
-
+      try{
+        //alert("a"); 
+        fetch(GLOB_IP_DEV+'/updateUPI/', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_id: this.state.user_id,
+            upi_address: this.state.upiAddress,
+          }),
+        })
+        .then((response) => response.json())
+        .then((res) => {
+          //console.log(res);
+          //alert(res.success);
+          //alert("a");
+          if (res.success === 1){
+            alert("UPI payment method added successfully.");
+          }
+          else{alert("Error fetching details.");}
+        })
+        .done();
+      }
+      catch(error){
+        alert(error);
+      }
     }
     else{
-
+      try{
+        //alert("a"); 
+        fetch(GLOB_IP_DEV+'/updatePAYTM/', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_id: this.state.user_id,
+            paytm_number: this.state.paytmNumber,
+          }),
+        })
+        .then((response) => response.json())
+        .then((res) => {
+          //console.log(res);
+          //alert(res.success);
+          //alert("a");
+          if (res.success === 1){
+            alert("PAYTM payment method added successfully.");
+          }
+          else{alert("Error fetching details.");}
+        })
+        .done();
+      }
+      catch(error){
+        alert(error);
+      }
     }
   }
   selectedPayMethod = (idx, value) => {
     //alert({idx} + " " + {value});
-    alert("1");
+    //alert("1");
     this.setState({'paymentType':value});
   }
 }

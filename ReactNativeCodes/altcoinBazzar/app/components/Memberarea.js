@@ -98,14 +98,14 @@ export default class Memberarea extends React.Component{
           if (res.data.kyc_status === false){
             //no kyc status
             //alert("No KYC Done");
-            this.state.kycDone = "No";
+            this.setState({'kycDone':'No'});
           }
           else{
             //kyc status done
             alert("KYC Done");
-            this.state.kycDone = "Yes";
+            this.setState({'kycDone':'Yes'});
           }
-          AsyncStorage.setItem('kyc_status', this.state.kycDone);
+          //AsyncStorage.setItem('kyc_status', this.state.kycDone);
         }
         else{alert("Error fetching details.");}
       })

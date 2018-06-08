@@ -188,11 +188,11 @@ export default class KYCarea extends React.Component{
           //alert(res.data.user_name + " " + res.data.user_id + " " + res.data.name + " " + res.data.email + " " + res.data.phone)
           if (res.data.kyc_status === false){
             //no kyc status
-            this.state.kycDone = 'No';
+            this.setState({'kycDone':'No'});
           }
           else{
             //kyc status done
-            this.state.kycDone = 'Yes';
+            this.setState({'kycDone':'Yes'});
           }
           //alert(this.state.kycDone);
         }

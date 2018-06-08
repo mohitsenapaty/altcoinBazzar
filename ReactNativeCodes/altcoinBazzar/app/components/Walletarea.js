@@ -125,12 +125,12 @@ export default class Walletarea extends React.Component{
           if (res.data.kyc_status === false){
             //no kyc status
             //alert("No KYC Done");
-            this.state.kycDone = "No";
+            this.setState({'kycDone':'No'});
           }
           else{
             //kyc status done
             //alert("KYC Done");
-            this.state.kycDone = "Yes";
+            this.setState({'kycDone':'Yes'});
           }
 
         }
