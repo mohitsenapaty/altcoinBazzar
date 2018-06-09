@@ -15,6 +15,9 @@ var updatePAYTMRouter = express.Router();
 var uploadImageRouter = express.Router();
 var SHA224 = require('sha224');
 var multer = require('multer')
+require('isomorphic-fetch')
+var Dropbox = require('dropbox').Dropbox;
+var dbx = new Dropbox({ accessToken: '8-wDj0PmK0AAAAAAAAAdgoG6JAANa8vubD3xoGWXM0RHQaVzhwV40XAvdYGsvO94'});
 
 const file_upload_dest_dev = '/Users/msenapaty/Documents/react_native_ios/altcoinBazzar/NodeJSCodes/';
 const file_upload_dest = '/var/www/altcoinBazzar/'
@@ -239,7 +242,7 @@ getAllPayMethodsRouter.post('/', function(req, resp, next) {
         payment_id_arr_imps = [];
         payment_id_arr_upi = [];
         payment_id_arr_paytm = [];
-        for (int i = 0; i < res.rows.length; i++){
+        for (var i = 0; i < res.rows.length; i++){
           if (res.rows[i].payment_type == 'IMPS') payment_id_arr_imps.push(parseInt(res.rows[i].payment_id, 10));
           if (res.rows[i].payment_type == 'UPI') payment_id_arr_upi.push(parseInt(res.rows[i].payment_id, 10));
           if (res.rows[i].payment_type == 'PAYTM') payment_id_arr_paytm.push(parseInt(res.rows[i].payment_id, 10));
@@ -279,19 +282,18 @@ getAllPayMethodsRouter.post('/', function(req, resp, next) {
 });
 
 
-const upload = multer({
-    dest: file_upload_dest,
-    limits: {fileSize: 5242880, files: 1},
-    fileFilter:  (req, file, callback) => {
-        if (!file.originalname.match(/\.(jpg|jpeg|png|pdf)$/)) {
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, file_upload_dest)
+    },
+    filename: function (req, file, cb) {
+        cb(null, req.body.file_name)
+  }
+})
 
-            return callback(new Error('Only Images are allowed !'), false)
-        }
 
-        callback(null, true);
-    }
-}).single('image')
 
+var upload = multer({ storage: storage }).single('image')
 
 uploadImageRouter.post('/',function (req, resp, next) {
     var result = {'success':0}
@@ -302,7 +304,15 @@ uploadImageRouter.post('/',function (req, resp, next) {
         } else {
             console.log("Image uploaded successfully")
             result['success'] = 1
-            resp.send(result)
+            resp.send(result)       
+            /*dbx.filesUpload({contents:req.file.buffer, path:'/' + req.body.file_name}).then(function (err, data) {
+                if (err) 
+                {
+                    return console.error(err)
+                }
+            }).catch(function(error) {
+                        console.error(error)
+            });*/
         }
     })
 });
@@ -312,7 +322,7 @@ updateKYCRouter.post('/', function(req, resp, next) {
   //console.log(req);
   console.log(req.body);
   //console.log(next);
-
+  var kyc_data = {'success':0};
   var user_id = req.body.user_id;
   var aadhar_no = req.body.aadharNumber;
   var pan_no = req.body.panNumber;
@@ -323,32 +333,37 @@ updateKYCRouter.post('/', function(req, resp, next) {
   var state = req.body.stateName;
   var pincode = req.body.pincode;
   var residentialStatus = req.body.residentialStatus;
-  var panImageName = req.body.panImageName;
-  var aadharImageName = req.body.aadharImageFrontName;
-  var photoName = req.body.passportImage;
+  var panImagelink = req.body.panImageName;
+  var aadharImagelink = req.body.aadharImageFrontName;
+  var photolink = req.body.passportImage;
 
-  db_client.query("INSERT INTO user_login(user_name, name, phone, email, password) values ($1, $2, $3, $4, $5);", [username, name, phone, email, enc_pwd], function(err, res)
+  db_client.query("INSERT INTO kyc(user_id, aadhar_name, aadhar, pan, dob, address, city, state, pincode, residential_status, aadhar_image, pan_image, photograph) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);", [user_id , name, aadhar_name, aadhar_no, pan_no, aadhar_dob, address, city, state, pincode, residentialStatus, aadharImagelink, panImagelink, photolink], function(err, res)
   {
-    if (err){console.log(err); resp.send(register_data);}
+    if (err)
+    {
+      console.log(err); 
+      resp.send(register_data);
+    }
     else
-    { //console.log(res);
-      db_client.query("insert into user_profile(user_id, name, surname, kyc_status, creation_time) values ($1, $2, $3, false, CURRENT_TIMESTAMP);", [res.rows[0].id, name, surname], function(err1, res1){
-        if (err1){console.log(err1); resp.send(register_data);}
-    else{
-          console.log("Successfully registered");
-          register_data['success'] = 1;
+    { 
+      db_client.query("UPDATE user_profile SET kyc_status = $1 WHERE user_id = $2;"),[true,user_id], function(err, res)
+      {
+
+        if (err)
+        {
+          console.log(err);
           resp.send(register_data);
         }
-      });
-
-      //console.log("Successfully registered");
-      //register_data['success'] = 1;
-      //resp.send(register_data);
-
+        else
+        {
+          console.log("Successfully registered");
+          kyc_data['success'] = 1;
+          resp.send(register_data);
+        }
+      }
     }
   });
 });
-
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
