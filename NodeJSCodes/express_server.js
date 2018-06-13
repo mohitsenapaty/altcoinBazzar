@@ -69,7 +69,7 @@ registerUserRouter.post('/', function(req, resp, next) {
   }
   //console.log(SHA224(password, "utf8").toString('hex'));
   enc_pwd = SHA224(password, "utf8").toString('hex');
-  db_client.query("INSERT INTO user_login(user_name, name, phone, email, password) values ($1, $2, $3, $4, $5);", [username, name, phone, email, enc_pwd], function(err, res)
+  db_client.query("INSERT INTO user_login(user_name, name, phone, email, password) values ($1, $2, $3, $4, $5) RETURNING id;", [username, name, phone, email, enc_pwd], function(err, res)
   {
     if (err){console.log(err); resp.send(register_data);}
     else
@@ -123,7 +123,7 @@ updateIMPSRouter.post('/', function(req, resp, next) {
   //console.log(next);
 
   var user_id = req.body.user_id;
-  var userID = parseInt(userid, 10);
+  var userID = parseInt(user_id, 10);
   var bank_name = req.body.bank_name;
   var ifsc = req.body.ifsc;
   var account_no = req.body.account_no;
@@ -133,11 +133,11 @@ updateIMPSRouter.post('/', function(req, resp, next) {
   var register_data = {'success':0,'data':{}};
   //console.log(SHA224(password, "utf8").toString('hex'));
   //enc_pwd = SHA224(password, "utf8").toString('hex');
-  db_client.query("INSERT INTO imps_payment_method(bank_name, ifsc, account_no, account_holder_name, account_type, status) values ($1, $2, $3, $4, $5, $6);", [bank_name, ifsc, account_no, account_holder_name, account_type, 'A'], function(err, res)
+  db_client.query("INSERT INTO imps_payment_method(bank_name, ifsc, account_no, account_holder_name, account_type, status) values ($1, $2, $3, $4, $5, $6)  RETURNING payment_id;", [bank_name, ifsc, account_no, account_holder_name, account_type, 'A'], function(err, res)
   {
     if (err){console.log(err); resp.send(register_data);}
     else
-    { //console.log(res);
+    { console.log(res.rows[0]);
       db_client.query("insert into general_payment_method(user_id, payment_type, payment_id) values ($1, $2, $3);", [userID, 'IMPS', res.rows[0].payment_id], function(err1, res1){
         if (err1){console.log(err1); resp.send(register_data);}
         else{
@@ -161,18 +161,18 @@ updateUPIRouter.post('/', function(req, resp, next) {
   //console.log(next);
 
   var user_id = req.body.user_id;
-  var userID = parseInt(userid, 10);
+  var userID = parseInt(user_id, 10);
   var upi_address = req.body.upi_address;
 
   var register_data = {'success':0,'data':{}};
 
   //console.log(SHA224(password, "utf8").toString('hex'));
-  db_client.query("INSERT INTO upi_payment_method(upi_address, status) values ($1, $2);", [upi_address, 'A'], function(err, res)
+  db_client.query("INSERT INTO upi_payment_method(upi_address, status) values ($1, $2)  RETURNING payment_id;", [upi_address, 'A'], function(err, res)
   {
     if (err){console.log(err); resp.send(register_data);}
     else
     { //console.log(res);
-      db_client.query("insert into general_payment_method(user_id, payment_type, payment_id) values ($1, $2, $3);", [userID, 'UPI', res.rows[0].payment_id], function(err1, res1){
+      db_client.query("insert into general_payment_method(user_id, payment_type, payment_id) values ($1, $2, $3) ;", [userID, 'UPI', res.rows[0].payment_id], function(err1, res1){
         if (err1){console.log(err1); resp.send(register_data);}
         else{
           console.log("Successfully registered");
@@ -195,13 +195,13 @@ updatePAYTMRouter.post('/', function(req, resp, next) {
   //console.log(next);
 
   var user_id = req.body.user_id;
-  var userID = parseInt(userid, 10);
+  var userID = parseInt(user_id, 10);
   var paytm_number = req.body.paytm_number;
 
   var register_data = {'success':0,'data':{}};
 
   //console.log(SHA224(password, "utf8").toString('hex'));
-  db_client.query("INSERT INTO paytm_payment_method(upi_address, status) values ($1, $2);", [paytm_number, 'A'], function(err, res)
+  db_client.query("INSERT INTO paytm_payment_method(paytm_number, status) values ($1, $2)  RETURNING payment_id;", [paytm_number, 'A'], function(err, res)
   {
     if (err){console.log(err); resp.send(register_data);}
     else
@@ -238,6 +238,7 @@ getAllPayMethodsRouter.post('/', function(req, resp, next) {
     else
     { //console.log(res);
       console.log(res.rows.length);
+      console.log("....");
       if (res.rows.length>=1){
         payment_id_arr_imps = [];
         payment_id_arr_upi = [];
@@ -249,21 +250,27 @@ getAllPayMethodsRouter.post('/', function(req, resp, next) {
         }
         //console.log("successful login");
         //banks added now find out all the payment methods
-        db_client.query("SELECT * FROM imps_payment_method WHERE payment_id=ANY($1) AND status='A';",[userID],function(err_imps, res_imps){
+        db_client.query("SELECT * FROM imps_payment_method WHERE payment_id=ANY($1) AND status='A';",[payment_id_arr_imps],function(err_imps, res_imps){
           if (err_imps){console.log(err_imps);resp.send(login_data);}
+          console.log(res_imps.rows[0]);
           if (res_imps.rows.length >= 1){
-            login_data.success.imps = res_imps.rows[0];
+            login_data.data.imps = res_imps.rows[0];
+            console.log(login_data);
           }
-          db_client.query("SELECT * FROM upi_payment_method WHERE payment_id=ANY($1) AND status='A';",[userID],function(err_upi, res_upi){
+          db_client.query("SELECT * FROM upi_payment_method WHERE payment_id=ANY($1) AND status='A';",[payment_id_arr_upi],function(err_upi, res_upi){
             if (err_upi){console.log(err_upi);resp.send(login_data);}
             else{
-              if (res_upi.rows.length >= 1) login_data.success.upi = res_upi.rows[0];
+              console.log("Here upi");
+              console.log(login_data);
+              if (res_upi.rows.length >= 1) login_data.data.upi = res_upi.rows[0];
             }
-            db_client.query("SELECT * FROM paytm_payment_method WHERE payment_id=ANY($1) AND status='A';",[userID],function(err_paytm, res_paytm){
+            db_client.query("SELECT * FROM paytm_payment_method WHERE payment_id=ANY($1) AND status='A';",[payment_id_arr_paytm],function(err_paytm, res_paytm){
               if (err_paytm){console.log(err_paytm);resp.send(login_data);}
               else{
-                if (res_paytm.rows.length >= 1) login_data.success.paytm = res_paytm.rows[0];
+                console.log("Here paytm");
+                if (res_paytm.rows.length >= 1) login_data.data.paytm = res_paytm.rows[0];
                 login_data['success'] = 1;
+                console.log(login_data);
                 resp.send(login_data);
               }
             });
@@ -274,6 +281,8 @@ getAllPayMethodsRouter.post('/', function(req, resp, next) {
       }
       else{
         console.log("Banks Not Added");
+        login_data['success'] = 1;
+        resp.send(login_data);
       }
       //resp.send(login_data);
 

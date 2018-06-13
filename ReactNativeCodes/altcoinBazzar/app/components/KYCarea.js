@@ -45,7 +45,7 @@ export default class KYCarea extends React.Component{
   classRender(){
     if (this.state.kycDone == 'No'){
       return(
-        <View style={styles.InputContainer}>
+        <ScrollView style={styles.InputContainer}>
                 
           <TextInput secureTextEntry={true} onChangeText={(password)=>this.setState({password})} value={this.state.password} style={styles.Input} placeholder='Password'></TextInput>
           <TextInput style={styles.Input} onChangeText={(panNumber)=>this.setState({panNumber})} value={this.state.panNumber}  placeholder='PAN Number'></TextInput>
@@ -68,7 +68,7 @@ export default class KYCarea extends React.Component{
           <TouchableOpacity onPress={this.updateKYC} style={styles.ButtonContainer}>
             <Text>Update</Text>
           </TouchableOpacity>
-        </View>
+        </ScrollView>
       );
     }
     else{

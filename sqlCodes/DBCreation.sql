@@ -100,7 +100,7 @@ CREATE INDEX payment_id_paytm on paytm_payment_method(payment_id);
 
 CREATE TABLE general_payment_method(
     id SERIAL,
-    user_id INT UNIQUE NOT NULL,
+    user_id INT NOT NULL,
     payment_type VARCHAR(20) NOT NULL,
     payment_id BIGINT NOT NULL,
     PRIMARY KEY (id),

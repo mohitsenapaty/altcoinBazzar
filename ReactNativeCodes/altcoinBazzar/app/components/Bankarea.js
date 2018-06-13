@@ -44,7 +44,7 @@ export default class Bankarea extends React.Component{
     this.props.navigation.navigate('Tradearea');
   }
   classRender(){
-    if (this.state.paymentType == 'IMPS'){
+    if (this.state.paymentType == 'IMPS' && this.state.HasIMPS == 'No'){
       return (
         <View style={styles.InputContainer}>
           <ModalDropdown options={['IMPS', 'UPI', 'PAYTM']} defaultValue='IMPS' onSelect={this.selectedPayMethod}>
@@ -52,6 +52,8 @@ export default class Bankarea extends React.Component{
           </ModalDropdown>
           <TextInput style={styles.Input} onChangeText={(username)=>this.setState({username})} value={this.state.username}  placeholder='Username'></TextInput>
           <TextInput secureTextEntry={true} onChangeText={(password)=>this.setState({password})} value={this.state.password} style={styles.Input} placeholder='Password'></TextInput>
+          <TextInput style={styles.Input} onChangeText={(AccountHolderName)=>this.setState({AccountHolderName})} value={this.state.AccountHolderName}  placeholder='Account Holder Name'></TextInput>
+          <TextInput style={styles.Input} onChangeText={(bank_name)=>this.setState({bank_name})} value={this.state.bank_name}  placeholder='Bank Name'></TextInput>
           <TextInput style={styles.Input} onChangeText={(impsNumber)=>this.setState({impsNumber})} value={this.state.impsNumber}  placeholder='impsNumber'></TextInput>
           <TextInput style={styles.Input} onChangeText={(ifscCode)=>this.setState({ifscCode})} value={this.state.ifscCode}  placeholder='ifsc Code'></TextInput>
           <TextInput style={styles.Input} onChangeText={(accountType)=>this.setState({accountType})} value={this.state.accountType}  placeholder='Account type'></TextInput>
@@ -61,33 +63,97 @@ export default class Bankarea extends React.Component{
         </View>
       );
     }
-    else if (this.state.paymentType == 'PAYTM') {
+    else if (this.state.paymentType == 'IMPS' && this.state.HasIMPS == 'Yes'){
       return (
         <View style={styles.InputContainer}>
+          <Text>IMPS Details here. {this.state.AccountHolderNameDB} {this.state.impsNumberDB}
+            {this.state.ifscCodeDB} {this.state.bank_nameDB} {this.state.accountTypeDB}
+          </Text>
           <ModalDropdown options={['IMPS', 'UPI', 'PAYTM']} defaultValue='IMPS' onSelect={this.selectedPayMethod}>
           
           </ModalDropdown>
-          <TextInput style={styles.Input} onChangeText={(username)=>this.setState({username})} value={this.state.username}  placeholder='Username'></TextInput>
+          <TextInput style={styles.Input} onChangeText={(AccountHolderName)=>this.setState({AccountHolderName})} value={this.state.AccountHolderName}  placeholder='Account Holder Name'></TextInput>
+          <TextInput style={styles.Input} onChangeText={(bank_name)=>this.setState({bank_name})} value={this.state.bank_name}  placeholder='Bank Name'></TextInput>
+          <TextInput style={styles.Input} onChangeText={(impsNumber)=>this.setState({impsNumber})} value={this.state.impsNumber}  placeholder='Account Number'></TextInput>
+          <TextInput style={styles.Input} onChangeText={(ifscCode)=>this.setState({ifscCode})} value={this.state.ifscCode}  placeholder='ifsc Code'></TextInput>
+          <TextInput style={styles.Input} onChangeText={(accountType)=>this.setState({accountType})} value={this.state.accountType}  placeholder='Account type'></TextInput>
           <TextInput secureTextEntry={true} onChangeText={(password)=>this.setState({password})} value={this.state.password} style={styles.Input} placeholder='Password'></TextInput>
+          <TouchableOpacity onPress={this.updateBank} style={styles.ButtonContainer}>
+            <Text>Update IMPS</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    else if (this.state.paymentType == 'PAYTM' && this.state.HasPAYTM == 'No') {
+      return (
+        <View style={styles.InputContainer}>
+          
+          <ModalDropdown options={['IMPS', 'UPI', 'PAYTM']} defaultValue='IMPS' onSelect={this.selectedPayMethod}>
+          
+          </ModalDropdown>
+          
           <TextInput style={styles.Input} onChangeText={(paytmNumber)=>this.setState({paytmNumber})} value={this.state.paytmNumber}  placeholder='PAYTM number'></TextInput>
+          <TextInput secureTextEntry={true} onChangeText={(password)=>this.setState({password})} value={this.state.password} style={styles.Input} placeholder='Password'></TextInput>
           <TouchableOpacity onPress={this.updateBank} style={styles.ButtonContainer}>
             <Text>Update PAYTM</Text>
           </TouchableOpacity>
         </View>
       );
     }
-    else{
+    else if (this.state.paymentType == 'PAYTM' && this.state.HasPAYTM == 'Yes') {
       return (
         <View style={styles.InputContainer}>
+          <Text>PAYTM Details here. {this.state.paytmNumberDB}
+          </Text>
           <ModalDropdown options={['IMPS', 'UPI', 'PAYTM']} defaultValue='IMPS' onSelect={this.selectedPayMethod}>
           
           </ModalDropdown>
-          <TextInput style={styles.Input} onChangeText={(username)=>this.setState({username})} value={this.state.username}  placeholder='Username'></TextInput>
+          
+          <TextInput style={styles.Input} onChangeText={(paytmNumber)=>this.setState({paytmNumber})} value={this.state.paytmNumber}  placeholder='PAYTM number'></TextInput>
           <TextInput secureTextEntry={true} onChangeText={(password)=>this.setState({password})} value={this.state.password} style={styles.Input} placeholder='Password'></TextInput>
+          <TouchableOpacity onPress={this.updateBank} style={styles.ButtonContainer}>
+            <Text>Update PAYTM</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    else if (this.state.paymentType == 'UPI' && this.state.HasUPI == 'No'){
+      return (
+        <View style={styles.InputContainer}>
+          <ModalDropdown options={['IMPS', 'UPI', 'PAYTM']} defaultValue='UPI' onSelect={this.selectedPayMethod}>
+          
+          </ModalDropdown>
+          
           <TextInput style={styles.Input} onChangeText={(upiAddress)=>this.setState({upiAddress})} value={this.state.upiAddress}  placeholder='PAYTM number'></TextInput>
+          <TextInput secureTextEntry={true} onChangeText={(password)=>this.setState({password})} value={this.state.password} style={styles.Input} placeholder='Password'></TextInput>
           <TouchableOpacity onPress={this.updateBank} style={styles.ButtonContainer}>
             <Text>Update UPI</Text>
           </TouchableOpacity>
+        </View>
+      );
+    }
+    else if (this.state.paymentType == 'UPI' && this.state.HasUPI == 'Yes'){
+      return (
+        <View style={styles.InputContainer}>
+          <Text>UPI Details here. {this.state.upiAddressDB}
+          </Text>
+          <ModalDropdown options={['IMPS', 'UPI', 'PAYTM']} defaultValue='PAYTM' onSelect={this.selectedPayMethod}>
+          
+          </ModalDropdown>
+
+          
+          <TextInput style={styles.Input} onChangeText={(upiAddress)=>this.setState({upiAddress})} value={this.state.upiAddress}  placeholder='PAYTM number'></TextInput>
+          <TextInput secureTextEntry={true} onChangeText={(password)=>this.setState({password})} value={this.state.password} style={styles.Input} placeholder='Password'></TextInput>
+          <TouchableOpacity onPress={this.updateBank} style={styles.ButtonContainer}>
+            <Text>Update UPI</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    else{
+      return(
+        <View style={styles.InputContainer}>
+          <Text>There was some error.</Text>
         </View>
       );
     }
@@ -137,11 +203,13 @@ export default class Bankarea extends React.Component{
 
   constructor(props){
     super(props);
-    this.state = {username:'', password:'', defaultPayMethod:'', 
-    payMethodAdded:'No', paymentType:'IMPS', 'impsNumber':'', 
-    'ifscCode':'', 'accountType':'', 'upiAddress':'', paytmNumber:'',
-    'user_id':'', bank_name:'', AccountHolderName:'',
-    'HasIMPS':'No', 'HasUPI':'No', 'HasPAYTM':'No',
+    this.state = {'username':'', 'password':'', 'defaultPayMethod':'IMPS', 
+    'payMethodAdded':'No', 'paymentType':'IMPS', 'impsNumber':'', 
+    'ifscCode':'', 'accountType':'', 'upiAddress':'', 'paytmNumber':'',
+    'user_id':'', 'bank_name':'', 'AccountHolderName':'',
+    'HasIMPS':'No', 'HasUPI':'No', 'HasPAYTM':'No', 'impsNumberDB':'', 
+    'ifscCodeDB':'', 'accountTypeDB':'', 'upiAddressDB':'', 'paytmNumberDB':'',
+    'AccountHolderNameDB':'', 'bank_nameDB':'',
     };
     this.toggleDrawer = this.toggleDrawer.bind(this);
     this.setDrawerState = this.setDrawerState.bind(this);
@@ -217,6 +285,53 @@ export default class Bankarea extends React.Component{
           //alert(this.state.kycDone);
         }
         else{alert("Error fetching details.");}
+      })
+      .done();
+
+      fetch(GLOB_IP_DEV+'/getAllPayMethods/', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: this.state.user_id,
+        }),
+      })
+      .then((response) => response.json())
+      .then((res) => {
+        //console.log(res);
+        //alert(JSON.stringify(res));
+        //alert(res.success);
+        //alert("a");
+        if (res.success === 1){
+          if (Object.keys(res.data.imps).length === 0 && Object.keys(res.data.upi).length === 0 && Object.keys(res.data.paytm).length === 0){
+            alert("You don't have any bank Details. Please add a bank detail.");
+          }
+          if (Object.keys(res.data.imps).length !== 0){
+            //has imps
+            //alert(JSON.stringify(res.data.imps));
+            this.setState({'HasIMPS':'Yes'});
+            this.setState({'AccountHolderNameDB':res.data.imps.account_holder_name});
+            this.setState({'bank_nameDB':res.data.imps.bank_name});
+            this.setState({'accountTypeDB':res.data.imps.account_type});
+            this.setState({'ifscCodeDB':res.data.imps.ifsc});
+            this.setState({'impsNumberDB':res.data.imps.account_no});
+          }
+          if (Object.keys(res.data.upi).length !== 0){
+            //has upi
+            //alert(JSON.stringify(res.data.upi));
+            this.setState({'HasUPI':'Yes'});
+            this.setState({'upiAddressDB':res.data.upi.upi_address});
+          }
+          if (Object.keys(res.data.paytm).length !== 0){
+            //has paytm
+            //alert(JSON.stringify(res.data.paytm));
+            this.setState({'HasPAYTM':'Yes'});
+            this.setState({'paytmNumberDB':res.data.paytm.paytm_number});
+          }
+        }
+        else{alert("Error fetching details. Or bank details not added.");}
       })
       .done();
     }
