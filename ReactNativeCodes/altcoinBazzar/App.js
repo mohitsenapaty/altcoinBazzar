@@ -22,6 +22,8 @@ import KYCarea from './app/components/KYCarea';
 import Bankarea from './app/components/Bankarea';
 import Marketarea from './app/components/Marketarea';
 import Walletarea from './app/components/Walletarea';
+import BitcoinWalletarea from './app/components/BitcoinWalletarea';
+import EtherWalletarea from './app/components/EtherWalletarea';
 import Tradearea from './app/components/Tradearea';
 import {StackNavigator} from 'react-navigation';
 
@@ -34,6 +36,8 @@ const NavigationApp = StackNavigator(
     Bankarea:{screen:Bankarea},
     Marketarea:{screen:Marketarea},
     Walletarea:{screen:Walletarea},
+    BitcoinWalletarea:{screen:BitcoinWalletarea},
+    EtherWalletarea:{screen:EtherWalletarea},
     Tradearea:{screen:Tradearea},
   },
   {

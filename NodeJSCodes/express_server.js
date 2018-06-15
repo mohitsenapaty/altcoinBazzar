@@ -13,6 +13,8 @@ var updateIMPSRouter = express.Router();
 var updateUPIRouter = express.Router();
 var updatePAYTMRouter = express.Router();
 var uploadImageRouter = express.Router();
+var BitcoinWalletRetrieveRouter = require('./BitcoinWalletRetrieve.route');
+var EtherWalletRetrieveRouter = require('./EtherWalletRetrieve.route');
 var SHA224 = require('sha224');
 var multer = require('multer')
 require('isomorphic-fetch')
@@ -386,6 +388,8 @@ app.use('/updateIMPS', updateIMPSRouter);
 app.use('/updatePAYTM', updatePAYTMRouter);
 app.use('/uploadImage', uploadImageRouter);
 app.use('/getAllPayMethods', getAllPayMethodsRouter);
+app.use('/BitcoinWalletRetrieve', BitcoinWalletRetrieveRouter);
+app.use('/EtherWalletRetrieve', BitcoinWalletRetrieveRouter);
 
 app.listen(8000, () => {
   console.log('Server started!');

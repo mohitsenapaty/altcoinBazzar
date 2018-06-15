@@ -36,7 +36,7 @@ const instructions = Platform.select({
 */
 
 //type Props = {};
-export default class Walletarea extends React.Component{
+export default class BitcoinWalletarea extends React.Component{
   goToProfilePage = () =>{
     this.props.navigation.navigate('Memberarea');
   }
@@ -60,6 +60,8 @@ export default class Walletarea extends React.Component{
     this.state={
       'user_session':{},
       'kycDone':'No',
+      'bitcoinAddressAvailable':'No',
+      'bitcoinAddress':'',
     };
 
     this.toggleDrawer = this.toggleDrawer.bind(this);
@@ -141,22 +143,71 @@ export default class Walletarea extends React.Component{
     catch(error){
       alert(error);
     }
+    try{
+      //alert("a"); 
+      fetch(GLOB_IP_DEV + '/BitcoinWalletRetrieve/', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: this.state.user_session.user_id,
+          
+        }),
+      })
+      .then((response) => response.json())
+      .then((res) => {
+        //console.log(res);
+        //alert(res.success);
+        //alert("a");
+        if (res.success === 1){
+          //alert(JSON.stringify(res));
+          this.setState({'bitcoinAddressAvailable':'Yes'});
+          this.setState({'bitcoinAddress':res.data.wallet_address});
+        }
+        else{
+          //alert(JSON.stringify(res));
+          this.setState({'bitcoinAddressAvailable':'No'});
+        }
+        //else{alert("Error fetching details.");}
+      })
+      .done();
+    }
+    catch(error){
+      alert(error);
+    }
     
+  }
+  walletRender(){
+    if (this.state.bitcoinAddressAvailable == 'Yes'){
+      return(
+        <View>
+          <Text>Bitcoin address: {this.state.bitcoinAddress}</Text>
+          <Text>Deposit bitcoin at the above address to sell.</Text>
+          <Text></Text>
+        </View>
+      );
+    }
+    else{
+      return(
+        <View>
+          <Text>You need to generate bitcoin address before you sell.</Text>
+          <TouchableOpacity onPress={this.generateAddress} style={styles.ButtonContainer}>
+            <Text>Generate Bitcoin Wallet</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
   }
   classRender(){
     if (this.state.kycDone!="Yes"){
       return(
         <View>
           <Text>You can Withdraw or Deposit.</Text>
-          <TouchableOpacity onPress={this.handleBitcoinWallet} style={styles.ButtonContainer}>
-            <Text>Bitcoin Wallet</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={this.handleEtherWallet} style={styles.ButtonContainer}>
-            <Text>Ether Wallet</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={this.handleRippleWallet} style={styles.ButtonContainer}>
-            <Text>Ripple Wallet</Text>
-          </TouchableOpacity>
+          {this.walletRender()} 
+          <Text>Current Balance: to be added later.</Text>
+          <Text>Locked Balance: to be added later.</Text>
         </View>
       );
     }
@@ -201,15 +252,8 @@ export default class Walletarea extends React.Component{
       </DrawerLayout>
     );  
   }
-  handleBitcoinWallet = () =>{
-    //alert("Handle Bitcoin Wallet");
-    this.props.navigation.navigate('BitcoinWalletarea');
-  }
-  handleEtherWallet = () =>{
-    this.props.navigation.navigate('EtherWalletarea');
-  }
-  handleRippleWallet = () =>{
-    alert("Handle Ripple Wallet");
+  generateAddress = () =>{
+    alert("will generate bitcoin address");
   }
   logout = () => {
     try{
