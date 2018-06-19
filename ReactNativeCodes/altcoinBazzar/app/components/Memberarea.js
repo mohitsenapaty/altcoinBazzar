@@ -34,6 +34,7 @@ export default class Memberarea extends React.Component{
       'user_session':{},
       'kycDone':'No',
       'drawerClosed':true,
+      'user_token':'',
     };
     this.toggleDrawer = this.toggleDrawer.bind(this);
     this.setDrawerState = this.setDrawerState.bind(this);
@@ -69,6 +70,18 @@ export default class Memberarea extends React.Component{
       obj_value = JSON.parse(value);
       this.setState({'user_session':obj_value});
 
+    }
+    else{
+      this.props.navigation.navigate('Login');
+    }
+
+    value = await AsyncStorage.getItem('user_token');
+    if (value !== null){
+      //json_value = JSON.stringify(value);
+      //alert(json_value);
+      obj_value = JSON.parse(value);
+      this.setState({'user_token':obj_value});
+      //alert(this.state.user_token);
     }
     else{
       this.props.navigation.navigate('Login');

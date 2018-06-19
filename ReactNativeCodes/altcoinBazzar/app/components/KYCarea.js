@@ -122,7 +122,7 @@ export default class KYCarea extends React.Component{
 
   constructor(props){
     super(props);
-    this.state = {username:'', user_id:'', password:'', 
+    this.state = {username:'', user_id:'', password:'', 'user_token':'',
       panNumber:'', aadharNumber:'', panImage:'', aadharImageFront:'', passportImage:'',
       panImageName:'', aadharImageFrontName:'', passportImageName:'', kycDone:'No', 
       aadharDOB:'', address:'', cityName:'', stateName:'', pincode:'', residentialStatus:''
@@ -164,6 +164,18 @@ export default class KYCarea extends React.Component{
       obj_value = JSON.parse(value);
       this.setState({'username':obj_value.user_name});
       this.setState({'user_id':obj_value.user_id});
+    }
+
+    value = await AsyncStorage.getItem('user_token');
+    if (value !== null){
+      //json_value = JSON.stringify(value);
+      //alert(json_value);
+      obj_value = JSON.parse(value);
+      this.setState({'user_token':obj_value});
+      //alert(this.state.user_token);
+    }
+    else{
+      this.props.navigation.navigate('Login');
     }
     
     try{

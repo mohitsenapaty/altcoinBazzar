@@ -103,6 +103,8 @@ export default class Login extends React.Component{
           //alert(res.data.user_name + " " + res.data.user_id + " " + res.data.name + " " + res.data.email + " " + res.data.phone)
           user_session = JSON.stringify(res.data);
           AsyncStorage.setItem('user_session', user_session);
+          user_token = JSON.stringify(res.token);
+          AsyncStorage.setItem('user_token', user_token);
           this.props.navigation.navigate('Memberarea');
         }
         else{alert("Invalid Login details");}

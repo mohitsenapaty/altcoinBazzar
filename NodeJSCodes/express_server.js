@@ -20,6 +20,7 @@ var multer = require('multer')
 require('isomorphic-fetch')
 var Dropbox = require('dropbox').Dropbox;
 var dbx = new Dropbox({ accessToken: '8-wDj0PmK0AAAAAAAAAdgoG6JAANa8vubD3xoGWXM0RHQaVzhwV40XAvdYGsvO94'});
+var crypto = require('crypto');
 
 const file_upload_dest_dev = '/Users/msenapaty/Documents/react_native_ios/altcoinBazzar/NodeJSCodes/';
 const file_upload_dest = '/var/www/altcoinBazzar/'
@@ -32,7 +33,7 @@ loginRouter.post('/', function(req, resp, next) {
   var username = req.body.username;
   var password = req.body.password;
   
-  var login_data = {'success':0,'data':{}};
+  var login_data = {'success':0,'data':{},'token':''};
   console.log(SHA224(password, "utf8").toString('hex'));
   enc_pwd = SHA224(password, "utf8").toString('hex');
   db_client.query("SELECT * FROM user_login WHERE user_name=$1 AND password=$2;", [username, enc_pwd], function(err, res)
@@ -42,9 +43,13 @@ loginRouter.post('/', function(req, resp, next) {
     { //console.log(res);
       console.log(res.rows.length);
       if (res.rows.length==1){
-        console.log("successful login");
+        var api_key = crypto.createCipher('aes-128-cbc', 'mypassword');
+        var got_id = api_key.update((res.rows[0].user_id).toString(), 'utf8', 'hex');
+        got_id += api_key.final('hex');
+        console.log("successful login " + got_id);
         login_data['data'] = res.rows[0];
         login_data['success'] = 1;
+        login_data['token'] = got_id;
       }
       resp.send(login_data);
    
@@ -225,7 +230,7 @@ updatePAYTMRouter.post('/', function(req, resp, next) {
   });
 });
 
-getAllPayMethodsRouter.post('/', function(req, resp, next) {
+getAllPayMethodsRouter.post('/:pwd/', function(req, resp, next) {
   //console.log(req);
   console.log(req.body);
   //console.log(next);
@@ -234,6 +239,17 @@ getAllPayMethodsRouter.post('/', function(req, resp, next) {
   var userID = parseInt(userid, 10);
 
   var login_data = {'success':0,'data':{'imps':{}, 'upi':{}, 'paytm':{}}};
+
+  var api_key = crypto.createDecipher('aes-128-cbc', 'mypassword');
+  var got_id = api_key.update(req.params.pwd, 'hex', 'utf8');
+  got_id += api_key.final('utf8');
+  console.log(got_id + " qqq" );
+
+  if (got_id != userid){
+    resp.send(login_data);
+    return;
+  }
+
   db_client.query("SELECT * FROM general_payment_method WHERE user_id=$1;", [userID], function(err, res)
   {
     if (err){console.log(err); resp.send(login_data);}

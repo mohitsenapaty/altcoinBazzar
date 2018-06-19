@@ -21,6 +21,9 @@ var GLOB_IP_PROD='http://52.27.104.46'
 var GLOB_IP_DEV='http://127.0.0.1:8000'
 
 import ModalDropdown from 'react-native-modal-dropdown';
+//import '../../shim.js';      
+//import crypto from 'crypto';
+
 
 export default class Bankarea extends React.Component{
   goToProfilePage = () =>{
@@ -203,7 +206,7 @@ export default class Bankarea extends React.Component{
 
   constructor(props){
     super(props);
-    this.state = {'username':'', 'password':'', 'defaultPayMethod':'IMPS', 
+    this.state = {'username':'', 'password':'', 'defaultPayMethod':'IMPS', 'user_token':'',
     'payMethodAdded':'No', 'paymentType':'IMPS', 'impsNumber':'', 
     'ifscCode':'', 'accountType':'', 'upiAddress':'', 'paytmNumber':'',
     'user_id':'', 'bank_name':'', 'AccountHolderName':'',
@@ -253,6 +256,19 @@ export default class Bankarea extends React.Component{
       //if payMethodAdded == N defaultPayMethod is empty string
       //else payMethodAdded == Y fetch from the website.
     }
+
+    value = await AsyncStorage.getItem('user_token');
+    if (value !== null){
+      //json_value = JSON.stringify(value);
+      //alert(json_value);
+      obj_value = JSON.parse(value);
+      this.setState({'user_token':obj_value});
+      //alert(this.state.user_token);
+    }
+    else{
+      this.props.navigation.navigate('Login');
+    }
+
     //connect to bank using fetch api.
     try{
       //alert("a"); 
@@ -288,7 +304,7 @@ export default class Bankarea extends React.Component{
       })
       .done();
 
-      fetch(GLOB_IP_DEV+'/getAllPayMethods/', {
+      fetch(GLOB_IP_DEV+'/getAllPayMethods/'+this.state.user_token+'/', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
