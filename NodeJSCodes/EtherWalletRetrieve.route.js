@@ -4,14 +4,31 @@ var pg = require('pg');
 var conString = "postgres://postgres:postgres@localhost:5432/exchange";
 var db_client = new pg.Client(conString);
 db_client.connect();
+var crypto = require('crypto');
 
-router.post('/', function(req, resp, next){
+router.post('/:pwd/', function(req, resp, next){
 	console.log(req.body);
 
   var userid = req.body.user_id;
   var userID = parseInt(userid, 10);
 
 	var login_data = {'success':0,'data':{'wallet_present':'No', 'wallet_address':''}};
+
+  try{
+    var api_key = crypto.createDecipher('aes-128-cbc', 'mypassword');
+    var got_id = api_key.update(req.params.pwd, 'hex', 'utf8');
+    got_id += api_key.final('utf8');
+    console.log(got_id + " qqq" );
+  }
+  catch(error){
+    console.log(error);
+    resp.send(login_data);
+    return;
+  }
+  if (got_id != userid){
+    resp.send(login_data);
+    return;
+  }
 
   db_client.query("SELECT * FROM ether_wallet_test_user WHERE user_id=$1;", [userID], function(err, res)
   {

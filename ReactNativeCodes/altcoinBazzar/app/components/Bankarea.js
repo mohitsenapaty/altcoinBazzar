@@ -360,7 +360,7 @@ export default class Bankarea extends React.Component{
     if (this.state.paymentType == 'IMPS'){
       try{
         //alert("a"); 
-        fetch(GLOB_IP_DEV+'/updateIMPS/', {
+        fetch(GLOB_IP_DEV+'/updateIMPS/'+this.state.user_token+'/', {
           method: 'POST',
           headers: {
             Accept: 'application/json',
@@ -395,7 +395,7 @@ export default class Bankarea extends React.Component{
     else if (this.state.paymentType == 'UPI'){
       try{
         //alert("a"); 
-        fetch(GLOB_IP_DEV+'/updateUPI/', {
+        fetch(GLOB_IP_DEV+'/updateUPI/'+this.state.user_token+'/', {
           method: 'POST',
           headers: {
             Accept: 'application/json',
@@ -425,7 +425,7 @@ export default class Bankarea extends React.Component{
     else{
       try{
         //alert("a"); 
-        fetch(GLOB_IP_DEV+'/updatePAYTM/', {
+        fetch(GLOB_IP_DEV+'/updatePAYTM/'+this.state.user_token+'/', {
           method: 'POST',
           headers: {
             Accept: 'application/json',

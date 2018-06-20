@@ -62,6 +62,7 @@ export default class BitcoinWalletarea extends React.Component{
       'kycDone':'No',
       'bitcoinAddressAvailable':'No',
       'bitcoinAddress':'',
+      'user_token':'',
     };
 
     this.toggleDrawer = this.toggleDrawer.bind(this);
@@ -103,6 +104,18 @@ export default class BitcoinWalletarea extends React.Component{
       this.props.navigation.navigate('Login');
     }
     
+    value = await AsyncStorage.getItem('user_token');
+    if (value !== null){
+      //json_value = JSON.stringify(value);
+      //alert(json_value);
+      obj_value = JSON.parse(value);
+      this.setState({'user_token':obj_value});
+      //alert(this.state.user_token);
+    }
+    else{
+      this.props.navigation.navigate('Login');
+    }
+
     try{
       //alert("a"); 
       fetch(GLOB_IP_DEV + '/getKYCStatus/', {
@@ -145,7 +158,7 @@ export default class BitcoinWalletarea extends React.Component{
     }
     try{
       //alert("a"); 
-      fetch(GLOB_IP_DEV + '/BitcoinWalletRetrieve/', {
+      fetch(GLOB_IP_DEV + '/BitcoinWalletRetrieve/'+this.state.user_token+'/', {
         method: 'POST',
         headers: {
           Accept: 'application/json',

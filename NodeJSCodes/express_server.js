@@ -124,7 +124,7 @@ getKYCStatusRouter.post('/', function(req, resp, next) {
   });
 });
 
-updateIMPSRouter.post('/', function(req, resp, next) {
+updateIMPSRouter.post('/:pwd/', function(req, resp, next) {
   //console.log(req);
   console.log(req.body);
   //console.log(next);
@@ -138,6 +138,22 @@ updateIMPSRouter.post('/', function(req, resp, next) {
   var account_holder_name = req.body.account_holder_name;
 
   var register_data = {'success':0,'data':{}};
+
+  try{
+    var api_key = crypto.createDecipher('aes-128-cbc', 'mypassword');
+    var got_id = api_key.update(req.params.pwd, 'hex', 'utf8');
+    got_id += api_key.final('utf8');
+    console.log(got_id + " qqq" );
+  }
+  catch(error){
+    console.log(error);
+    resp.send(login_data);
+    return;
+  }
+  if (got_id != userid){
+    resp.send(login_data);
+    return;
+  }
   //console.log(SHA224(password, "utf8").toString('hex'));
   //enc_pwd = SHA224(password, "utf8").toString('hex');
   db_client.query("INSERT INTO imps_payment_method(bank_name, ifsc, account_no, account_holder_name, account_type, status) values ($1, $2, $3, $4, $5, $6)  RETURNING payment_id;", [bank_name, ifsc, account_no, account_holder_name, account_type, 'A'], function(err, res)
@@ -162,7 +178,7 @@ updateIMPSRouter.post('/', function(req, resp, next) {
   });
 });
 
-updateUPIRouter.post('/', function(req, resp, next) {
+updateUPIRouter.post('/:pwd/', function(req, resp, next) {
   //console.log(req);
   console.log(req.body);
   //console.log(next);
@@ -172,6 +188,22 @@ updateUPIRouter.post('/', function(req, resp, next) {
   var upi_address = req.body.upi_address;
 
   var register_data = {'success':0,'data':{}};
+
+  try{
+    var api_key = crypto.createDecipher('aes-128-cbc', 'mypassword');
+    var got_id = api_key.update(req.params.pwd, 'hex', 'utf8');
+    got_id += api_key.final('utf8');
+    console.log(got_id + " qqq" );
+  }
+  catch(error){
+    console.log(error);
+    resp.send(register_data);
+    return;
+  }
+  if (got_id != userid){
+    resp.send(register_data);
+    return;
+  }
 
   //console.log(SHA224(password, "utf8").toString('hex'));
   db_client.query("INSERT INTO upi_payment_method(upi_address, status) values ($1, $2)  RETURNING payment_id;", [upi_address, 'A'], function(err, res)
@@ -196,7 +228,7 @@ updateUPIRouter.post('/', function(req, resp, next) {
   });
 });
 
-updatePAYTMRouter.post('/', function(req, resp, next) {
+updatePAYTMRouter.post('/:pwd/', function(req, resp, next) {
   //console.log(req);
   console.log(req.body);
   //console.log(next);
@@ -206,6 +238,22 @@ updatePAYTMRouter.post('/', function(req, resp, next) {
   var paytm_number = req.body.paytm_number;
 
   var register_data = {'success':0,'data':{}};
+
+  try{
+    var api_key = crypto.createDecipher('aes-128-cbc', 'mypassword');
+    var got_id = api_key.update(req.params.pwd, 'hex', 'utf8');
+    got_id += api_key.final('utf8');
+    console.log(got_id + " qqq" );
+  }
+  catch(error){
+    console.log(error);
+    resp.send(register_data);
+    return;
+  }
+  if (got_id != userid){
+    resp.send(register_data);
+    return;
+  }
 
   //console.log(SHA224(password, "utf8").toString('hex'));
   db_client.query("INSERT INTO paytm_payment_method(paytm_number, status) values ($1, $2)  RETURNING payment_id;", [paytm_number, 'A'], function(err, res)
@@ -240,11 +288,17 @@ getAllPayMethodsRouter.post('/:pwd/', function(req, resp, next) {
 
   var login_data = {'success':0,'data':{'imps':{}, 'upi':{}, 'paytm':{}}};
 
-  var api_key = crypto.createDecipher('aes-128-cbc', 'mypassword');
-  var got_id = api_key.update(req.params.pwd, 'hex', 'utf8');
-  got_id += api_key.final('utf8');
-  console.log(got_id + " qqq" );
-
+  try{
+    var api_key = crypto.createDecipher('aes-128-cbc', 'mypassword');
+    var got_id = api_key.update(req.params.pwd, 'hex', 'utf8');
+    got_id += api_key.final('utf8');
+    console.log(got_id + " qqq" );
+  }
+  catch(error){
+    console.log(error);
+    resp.send(login_data);
+    return;
+  }
   if (got_id != userid){
     resp.send(login_data);
     return;
