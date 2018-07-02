@@ -15,6 +15,8 @@ var updatePAYTMRouter = express.Router();
 var uploadImageRouter = express.Router();
 var BitcoinWalletRetrieveRouter = require('./BitcoinWalletRetrieve.route');
 var EtherWalletRetrieveRouter = require('./EtherWalletRetrieve.route');
+var EtherAddressGenerateRouter = require('./EtherAddressGenerate.route');
+var EtherAddOfferRouter = require('./EtherAddOffer.route');
 var SHA224 = require('sha224');
 var multer = require('multer')
 require('isomorphic-fetch')
@@ -83,7 +85,7 @@ registerUserRouter.post('/', function(req, resp, next) {
     { //console.log(res);
       db_client.query("insert into user_profile(user_id, name, surname, kyc_status, creation_time) values ($1, $2, $3, false, CURRENT_TIMESTAMP);", [res.rows[0].id, name, surname], function(err1, res1){
         if (err1){console.log(err1); resp.send(register_data);}
-	else{
+        else{
           console.log("Successfully registered");
           register_data['success'] = 1;
           resp.send(register_data);
@@ -459,7 +461,9 @@ app.use('/updatePAYTM', updatePAYTMRouter);
 app.use('/uploadImage', uploadImageRouter);
 app.use('/getAllPayMethods', getAllPayMethodsRouter);
 app.use('/BitcoinWalletRetrieve', BitcoinWalletRetrieveRouter);
-app.use('/EtherWalletRetrieve', BitcoinWalletRetrieveRouter);
+app.use('/EtherWalletRetrieve', EtherWalletRetrieveRouter);
+app.use('/EtherAddressGenerate', EtherAddressGenerateRouter);
+app.use('/EtherAddOffer', EtherAddOfferRouter)
 
 app.listen(8000, () => {
   console.log('Server started!');

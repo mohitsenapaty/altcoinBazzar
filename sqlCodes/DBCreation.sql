@@ -160,10 +160,23 @@ CREATE TABLE quant_wallet_test_user(
     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES user_login(user_id)
 );
 
+alter table quant_wallet_test_user add wallet_id bigint;
+alter table quant_wallet_test_user add withdrawal_block numeric(10,6);
+alter table quant_wallet_test_user add offer_block numeric(10,6);
+create index quant_wallet_test_user_wallet_id on quant_wallet_test_user(wallet_id);
+
 CREATE INDEX user_id_quant_wallet_test_user on quant_wallet_test_user(user_id);
 CREATE INDEX token_symbol_quant_wallet_test_user on quant_wallet_test_user(token_symbol);
 CREATE INDEX token_name_quant_wallet_test_user on quant_wallet_test_user(token_name);
 
+create table OfferTable(offer_id bigserial primary key, user_id bigint, ticker varchar(10), offerType varchar(10), quant numeric(10,6), price numeric(10,6), totalPrice numeric(10,6), fillPercent numeric(10,6), status varchar(15), lastModified timestamp default current_timestamp, createDate timestamp default current_timestamp);
+
+create table TransactionTable(tx_id bigserial primary key, offer_id bigint, offerType varchar(10), ticker varchar(10), quant numeric(10,6), price numeric(10,6), totalPrice numeric(10,6), seller_user_id bigint, buyer_user_id bigint, txDate timestamp default current_timestamp);
+
+create index offerTable_user_id on OfferTable(seller_user_id);
+create index  on TransactionTable(offer_id);
+create index transactionTable_seller_user_id on TransactionTable(seller_user_id);
+create index transactionTable_buyer_user_id on TransactionTable(buyer_user_id);
 
 CREATE TABLE ether_wallet_test_master(
     wallet_id SERIAL,

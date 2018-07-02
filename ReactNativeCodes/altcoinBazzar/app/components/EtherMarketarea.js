@@ -14,6 +14,7 @@ import {
   AsyncStorage,
   TouchableOpacity,
   ScrollView,
+  TextInput,
 
 } from 'react-native';
 //import { Navigator } from 'react-native-deprecated-custom-components';
@@ -21,50 +22,29 @@ import {StackNavigator} from 'react-navigation';
 import ActionBar from 'react-native-action-bar';
 import DrawerLayout from 'react-native-drawer-layout';
 import Menu from './Menu';
+import ModalDropdown from 'react-native-modal-dropdown';
 //import Login from './Login';
 var GLOB_IP_PROD='http://52.27.104.46'
 var GLOB_IP_DEV='http://127.0.0.1:8000'
 
-
-/*
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' +
-    'Cmd+D or shake for dev menu',
-  android: 'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
-});
-*/
-
 //type Props = {};
-export default class EtherWalletarea extends React.Component{
-  goToProfilePage = () =>{
-    this.props.navigation.navigate('Memberarea');
-  }
-  goToKYCPage = () =>{
-    this.props.navigation.navigate('KYCarea');
-  }
-  goToBankPage = () =>{
-    this.props.navigation.navigate('Bankarea');
-  }
-  goToMarketPage = () =>{
-    this.props.navigation.navigate('Marketarea');
-  }
-  goToWalletPage = () =>{
-    this.props.navigation.navigate('Walletarea');
-  }
-  goToTradePage = () =>{
-    this.props.navigation.navigate('Tradearea');
-  }
+export default class EtherMarketArea extends React.Component{
+  
   constructor(props){
     super(props);
     this.state={
       'user_session':{},
       'kycDone':'No',
-      'etherAddressAvailable':'No',
-      'etherAddress':'',
+      'drawerClosed':true,
       'user_token':'',
+      'offerType':'Buy',
+      'quant':'0.000000',
+      'price':'0.00',
+      'totalPrice':'0.00',
+      'offerType':'Sell Offers',
+      'ticker':'ETH',
+      'lastSet':'',
     };
-
     this.toggleDrawer = this.toggleDrawer.bind(this);
     this.setDrawerState = this.setDrawerState.bind(this);
 
@@ -144,10 +124,10 @@ export default class EtherWalletarea extends React.Component{
           }
           else{
             //kyc status done
-            //alert("KYC Done");
+            alert("KYC Done");
             this.setState({'kycDone':'Yes'});
           }
-
+          //AsyncStorage.setItem('kyc_status', this.state.kycDone);
         }
         else{alert("Error fetching details.");}
       })
@@ -156,43 +136,9 @@ export default class EtherWalletarea extends React.Component{
     catch(error){
       alert(error);
     }
-    try{
-      //alert("a"); 
-      fetch(GLOB_IP_DEV + '/EtherWalletRetrieve/'+this.state.user_token+'/', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user_id: this.state.user_session.user_id,
-          
-        }),
-      })
-      .then((response) => response.json())
-      .then((res) => {
-        //console.log(res);
-        //alert(res.success);
-        //alert("a");
-        if (res.success === 1){
-          //alert(JSON.stringify(res));
-          this.setState({'etherAddressAvailable':'Yes'});
-          this.setState({'etherAddress':res.data.wallet_address});
-        }
-        else{
-          //alert(JSON.stringify(res));
-          this.setState({'etherAddressAvailable':'No'});
-        }
-        //else{alert("Error fetching details.");}
-      })
-      .done();
-    }
-    catch(error){
-      alert(error);
-    }
     
   }
-  walletRender(){
+  WalletRender(){
     if (this.state.etherAddressAvailable == 'Yes'){
       return(
         <View>
@@ -217,10 +163,32 @@ export default class EtherWalletarea extends React.Component{
     if (this.state.kycDone!="Yes"){
       return(
         <View>
-          <Text>You can Withdraw or Deposit.</Text>
-          {this.walletRender()} 
-          <Text>Current Balance: to be added later.</Text>
-          <Text>Locked Balance: to be added later.</Text>
+          <Text>Trade Area.</Text>
+          <Text>Will display offers here with sorting parameters.</Text>
+          <ModalDropdown options={['Sell Offers', 'Buy Offers']} 
+          defaultValue='Sell Offers' value = {this.state.offerType}
+          onSelect={this.selectedOfferTypeMethod}>
+          
+          </ModalDropdown>
+          <Text></Text>
+          <View>
+            <Text>Add offers here.</Text>
+            <TextInput style={styles.Input} 
+            onChangeText={(quant)=> this.onChangeQuantText(quant) } 
+            value={this.state.quant}  placeholder='0.000000'>
+            </TextInput>
+            <TextInput style={styles.Input} 
+            onChangeText={(price)=>this.onChangePriceText(price)} 
+            value={this.state.price}  placeholder='00.00'>
+            </TextInput>
+            <TextInput style={styles.Input} 
+            onChangeText={(totalPrice)=>this.onChangeTotalPriceText(totalPrice)} 
+            value={this.state.totalPrice}  placeholder='00.00'>
+            </TextInput>
+            <TouchableOpacity onPress={this.submitEtherOffer} style={styles.ButtonContainer}>
+              <Text>Submit Offer</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       );
     }
@@ -264,18 +232,108 @@ export default class EtherWalletarea extends React.Component{
         </View>
       </DrawerLayout>
     );  
+  }  
+  onChangeQuantText = (quant) => {
+    if (this.isNumeric(quant))
+    {
+      this.setState({'quant':quant}); 
+    }
+    else{
+      alert("incorrect value " + this.state.quant);
+    }
   }
-  generateAddress = () =>{
-    alert("will generate ether address");
+  onChangePriceText = (price) => {
+    if (this.isNumeric(price))
+    {
+      this.setState({'price':price}); 
+    }
+    else{
+      alert("incorrect value " + this.state.price);
+    }
+  }
+  onChangeTotalPriceText = (totalPrice) => {
+    if (this.isNumeric(totalPrice))
+    {
+      this.setState({'totalPrice':totalPrice}); 
+    }
+    else{
+      alert("incorrect value " + this.state.totalPrice);
+    }
+  }
+  submitEtherOffer = () => {
+    alert("offer submitted");
+    //validate input
+    inputValidated = 0;
+    if (this.state.ticker != 'ETH') {
+      alert("Invalid");
+      return;
+    }
+    if (!(this.state.offerType == 'Buy' || this.state.offerType == 'Sell')){
+      alert("Invalid");
+      return;
+    }
+    if (parseFloat(this.state.quant)*parseFloat(this.state.price) != parseFloat(this.state.totalPrice)){
+      alert("Invalid");
+      return;
+    }
+    if (inputValidated != 0){
+      try{
+          //alert("a"); 
+          fetch(GLOB_IP_DEV+'/EtherAddOffer/'+this.state.user_token+'/', {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              user_id: this.state.user_id,
+              ticker: this.state.ticker,
+              offerType: this.state.offerType,
+              quant: this.state.quant,
+              price: this.state.price,
+              totalPrice: this.state.totalPrice
+            }),
+          })
+          .then((response) => response.json())
+          .then((res) => {
+            //console.log(res);
+            //alert(res.success);
+            //alert("a");
+            if (res.success === 1){
+              alert("IMPS payment method added successfully.");
+              this.setState()
+            }
+            else{alert("Error fetching details.");}
+          })
+          .done();
+        }
+        catch(error){
+          alert(error);
+        }
+      }
+    }
+  }
+  selectedOfferTypeMethod = (idx, value) => {
+    this.setState({'offerType':value});
+  }
+  isNumeric = (n) => {
+    //alert(!isNaN(parseFloat(n)) && isFinite(n));
+    return !isNaN(parseFloat(n)) && isFinite(n);
   }
   logout = () => {
     try{
-      AsyncStorage.removeItem('user_session').then((res) => this.props.navigation.navigate('Login'));
+      AsyncStorage.removeItem('kyc_status')
+        .then((res)=>{AsyncStorage.removeItem('user_session')
+          .then((res1) => this.props.navigation.navigate('Login'));})
+      //AsyncStorage.removeItem('user_session').then((res) => this.props.navigation.navigate('Login'));
     }
     catch(error){alert(error);};
     //navigate('Login');
-    alert("logging out");
+    //alert("logging out");
     //this.props.navigation.navigate('Login');
+  }
+  goToProfilePage = () =>{
+    this.props.navigation.navigate('Memberarea');
   }
   goToKYCPage = () =>{
     this.props.navigation.navigate('KYCarea');
@@ -301,6 +359,13 @@ const styles = StyleSheet.create({
     flex:1,
     padding:20,
 
+  },
+  screen: {
+    backgroundColor: '#33cc33',
+    flex: 1,
+    paddingTop: 10,
+    alignItems: 'center',
+    //padding: 10
   },
   ButtonContainer:{
     alignSelf: 'stretch',

@@ -14,6 +14,7 @@ import {
   AsyncStorage,
   TouchableOpacity,
   ScrollView,
+  TextInput,
 
 } from 'react-native';
 //import { Navigator } from 'react-native-deprecated-custom-components';
@@ -21,47 +22,29 @@ import {StackNavigator} from 'react-navigation';
 import ActionBar from 'react-native-action-bar';
 import DrawerLayout from 'react-native-drawer-layout';
 import Menu from './Menu';
+import ModalDropdown from 'react-native-modal-dropdown';
 //import Login from './Login';
 var GLOB_IP_PROD='http://52.27.104.46'
 var GLOB_IP_DEV='http://127.0.0.1:8000'
 
-
-/*
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' +
-    'Cmd+D or shake for dev menu',
-  android: 'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
-});
-*/
-
 //type Props = {};
-export default class Marketarea extends React.Component{
-  goToProfilePage = () =>{
-    this.props.navigation.navigate('Memberarea');
-  }
-  goToKYCPage = () =>{
-    this.props.navigation.navigate('KYCarea');
-  }
-  goToBankPage = () =>{
-    this.props.navigation.navigate('Bankarea');
-  }
-  goToMarketPage = () =>{
-    this.props.navigation.navigate('Marketarea');
-  }
-  goToWalletPage = () =>{
-    this.props.navigation.navigate('Walletarea');
-  }
-  goToTradePage = () =>{
-    this.props.navigation.navigate('Tradearea');
-  }
+export default class BitcoinMarketArea extends React.Component{
+  
   constructor(props){
     super(props);
     this.state={
       'user_session':{},
       'kycDone':'No',
+      'drawerClosed':true,
+      'user_token':'',
+      'offerType':'Buy',
+      'quant':'0.000000',
+      'price':'0.00',
+      'totalPrice':'0.00',
+      'offerType':'Sell Offers',
+      'ticker':'BTC',
+      'lastSet':'',
     };
-
     this.toggleDrawer = this.toggleDrawer.bind(this);
     this.setDrawerState = this.setDrawerState.bind(this);
 
@@ -100,6 +83,18 @@ export default class Marketarea extends React.Component{
     else{
       this.props.navigation.navigate('Login');
     }
+
+    value = await AsyncStorage.getItem('user_token');
+    if (value !== null){
+      //json_value = JSON.stringify(value);
+      //alert(json_value);
+      obj_value = JSON.parse(value);
+      this.setState({'user_token':obj_value});
+      //alert(this.state.user_token);
+    }
+    else{
+      this.props.navigation.navigate('Login');
+    }
     
     try{
       //alert("a"); 
@@ -129,10 +124,10 @@ export default class Marketarea extends React.Component{
           }
           else{
             //kyc status done
-            //alert("KYC Done");
+            alert("KYC Done");
             this.setState({'kycDone':'Yes'});
           }
-
+          //AsyncStorage.setItem('kyc_status', this.state.kycDone);
         }
         else{alert("Error fetching details.");}
       })
@@ -143,31 +138,64 @@ export default class Marketarea extends React.Component{
     }
     
   }
-  classRender(){
-    if (this.state.kycDone!="Yes"){
+  WalletRender(){
+    if (this.state.bitcoinAddressAvailable == 'Yes'){
       return(
-        <View style={styles.CoinContainer}>
-          <View style={styles.CoinRow}>
-            <Text>TICKER </Text>
-            <Text>NAME </Text>
-            <Text>BEST BID </Text>
-            <Text>BEST ASK </Text>
-            <Text>LAST TRADE </Text>
-            <Text>ACTION </Text>
-          </View>
-          <TouchableOpacity onPress={this.handleBitcoinMarket} style={styles.ButtonContainer}>
-            <Text>Bitcoin Market</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={this.handleEtherMarket} style={styles.ButtonContainer}>
-            <Text>Ether Market</Text>
-          </TouchableOpacity>
+        <View>
+          <Text>Bitcoin address: 0x{this.state.bitcoinAddress}</Text>
+          <Text>Send bitcoin at the above address to sell.</Text>
+          <Text></Text>
         </View>
       );
     }
     else{
       return(
         <View>
-          <Text>You can not trade. Complete KYC before trading.</Text>
+          <Text>You need to generate bitcoin address before you sell.</Text>
+          <TouchableOpacity onPress={this.generateAddress} style={styles.ButtonContainer}>
+            <Text>Generate Bitcoin Wallet</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+  }
+  classRender(){
+    if (this.state.kycDone!="Yes"){
+      return(
+        <View>
+          <Text>Trade Area.</Text>
+          <Text>Will display offers here with sorting parameters.</Text>
+          <ModalDropdown options={['Sell Offers', 'Buy Offers']} 
+          defaultValue='Sell Offers' value = {this.state.offerType}
+          onSelect={this.selectedOfferTypeMethod}>
+          
+          </ModalDropdown>
+          <Text></Text>
+          <View>
+            <Text>Add offers here.</Text>
+            <TextInput style={styles.Input} 
+            onChangeText={(quant)=> this.onChangeQuantText(quant) } 
+            value={this.state.quant}  placeholder='0.000000'>
+            </TextInput>
+            <TextInput style={styles.Input} 
+            onChangeText={(price)=>this.onChangePriceText(price)} 
+            value={this.state.price}  placeholder='00.00'>
+            </TextInput>
+            <TextInput style={styles.Input} 
+            onChangeText={(totalPrice)=>this.onChangeTotalPriceText(totalPrice)} 
+            value={this.state.totalPrice}  placeholder='00.00'>
+            </TextInput>
+            <TouchableOpacity onPress={this.submitBitcoinOffer} style={styles.ButtonContainer}>
+              <Text>Submit Offer</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+    }
+    else{
+      return(
+        <View>
+          <Text>You can not trade. Complete KYC before Withdrawal or Deposit.</Text>
         </View>
       );
     }
@@ -204,23 +232,58 @@ export default class Marketarea extends React.Component{
         </View>
       </DrawerLayout>
     );  
+  }  
+  onChangeQuantText = (quant) => {
+    if (this.isNumeric(quant))
+    {
+      this.setState({'quant':quant}); 
+    }
+    else{
+      alert("incorrect value " + this.state.quant);
+    }
   }
-  handleBitcoinMarket = () =>{
-    //alert("go to bitcoin market");
-    this.props.navigation.navigate('BitcoinMarketarea');
+  onChangePriceText = (price) => {
+    if (this.isNumeric(price))
+    {
+      this.setState({'price':price}); 
+    }
+    else{
+      alert("incorrect value " + this.state.price);
+    }
   }
-  handleEtherMarket = () =>{
-    //alert("go to ether market");
-    this.props.navigation.navigate('EtherMarketarea');
+  onChangeTotalPriceText = (totalPrice) => {
+    if (this.isNumeric(totalPrice))
+    {
+      this.setState({'totalPrice':totalPrice}); 
+    }
+    else{
+      alert("incorrect value " + this.state.totalPrice);
+    }
+  }
+  submitBitcoinOffer = () => {
+    alert("offer submitted");
+  }
+  selectedOfferTypeMethod = (idx, value) => {
+    this.setState({'offerType':value});
+  }
+  isNumeric = (n) => {
+    //alert(!isNaN(parseFloat(n)) && isFinite(n));
+    return !isNaN(parseFloat(n)) && isFinite(n);
   }
   logout = () => {
     try{
-      AsyncStorage.removeItem('user_session').then((res) => this.props.navigation.navigate('Login'));
+      AsyncStorage.removeItem('kyc_status')
+        .then((res)=>{AsyncStorage.removeItem('user_session')
+          .then((res1) => this.props.navigation.navigate('Login'));})
+      //AsyncStorage.removeItem('user_session').then((res) => this.props.navigation.navigate('Login'));
     }
     catch(error){alert(error);};
     //navigate('Login');
-    alert("logging out");
+    //alert("logging out");
     //this.props.navigation.navigate('Login');
+  }
+  goToProfilePage = () =>{
+    this.props.navigation.navigate('Memberarea');
   }
   goToKYCPage = () =>{
     this.props.navigation.navigate('KYCarea');
@@ -247,6 +310,13 @@ const styles = StyleSheet.create({
     padding:20,
 
   },
+  screen: {
+    backgroundColor: '#33cc33',
+    flex: 1,
+    paddingTop: 10,
+    alignItems: 'center',
+    //padding: 10
+  },
   ButtonContainer:{
     alignSelf: 'stretch',
     margin: 20,
@@ -256,13 +326,4 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255, 0.6)',
     alignItems: 'center'
   },
-  CoinContainer:{
-    flex:1,
-    flexDirection:'column',
-    justifyContent:'center',
-  },
-  CoinRow:{
-    flex:1,
-    flexDirection:'row',
-  }
 });
