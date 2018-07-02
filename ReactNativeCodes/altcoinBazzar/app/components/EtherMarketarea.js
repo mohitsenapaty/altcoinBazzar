@@ -44,6 +44,8 @@ export default class EtherMarketArea extends React.Component{
       'offerType':'Sell Offers',
       'ticker':'ETH',
       'lastSet':'',
+      'offerPayMethod':'',
+      'createOfferPayMethod':'',
     };
     this.toggleDrawer = this.toggleDrawer.bind(this);
     this.setDrawerState = this.setDrawerState.bind(this);
@@ -168,7 +170,10 @@ export default class EtherMarketArea extends React.Component{
           <ModalDropdown options={['Sell Offers', 'Buy Offers']} 
           defaultValue='Sell Offers' value = {this.state.offerType}
           onSelect={this.selectedOfferTypeMethod}>
-          
+          </ModalDropdown>
+          <ModalDropdown options={['Any', 'IMPS', 'PAYTM', 'UPI']} 
+          defaultValue='Any' value = {this.state.offerPayMethod}
+          onSelect={this.selectedOfferPayMethod}>          
           </ModalDropdown>
           <Text></Text>
           <View>
@@ -185,6 +190,10 @@ export default class EtherMarketArea extends React.Component{
             onChangeText={(totalPrice)=>this.onChangeTotalPriceText(totalPrice)} 
             value={this.state.totalPrice}  placeholder='00.00'>
             </TextInput>
+            <ModalDropdown options={['Any', 'IMPS', 'PAYTM', 'UPI']} 
+            defaultValue='Any' value = {this.state.createOfferPayMethod}
+            onSelect={this.selectedCreateOfferPayMethod}>          
+            </ModalDropdown>
             <TouchableOpacity onPress={this.submitEtherOffer} style={styles.ButtonContainer}>
               <Text>Submit Offer</Text>
             </TouchableOpacity>
@@ -272,49 +281,59 @@ export default class EtherMarketArea extends React.Component{
       alert("Invalid");
       return;
     }
+    if (!(this.state.createOfferPayMethod == 'Any' || this.state.createOfferPayMethod == 'IMPS' || this.state.createOfferPayMethod == 'UPI' || this.state.createOfferPayMethod == 'PAYTM')){
+      alert("Invalid");
+      return;
+    }
     if (parseFloat(this.state.quant)*parseFloat(this.state.price) != parseFloat(this.state.totalPrice)){
       alert("Invalid");
       return;
     }
     if (inputValidated != 0){
       try{
-          //alert("a"); 
-          fetch(GLOB_IP_DEV+'/EtherAddOffer/'+this.state.user_token+'/', {
-            method: 'POST',
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              user_id: this.state.user_id,
-              ticker: this.state.ticker,
-              offerType: this.state.offerType,
-              quant: this.state.quant,
-              price: this.state.price,
-              totalPrice: this.state.totalPrice
-            }),
-          })
-          .then((response) => response.json())
-          .then((res) => {
-            //console.log(res);
-            //alert(res.success);
-            //alert("a");
-            if (res.success === 1){
-              alert("IMPS payment method added successfully.");
-              this.setState()
-            }
-            else{alert("Error fetching details.");}
-          })
-          .done();
-        }
-        catch(error){
-          alert(error);
-        }
+        //alert("a"); 
+        fetch(GLOB_IP_DEV+'/EtherAddOffer/'+this.state.user_token+'/', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_id: this.state.user_id,
+            ticker: this.state.ticker,
+            offerType: this.state.offerType,
+            quant: this.state.quant,
+            price: this.state.price,
+            totalPrice: this.state.totalPrice,
+            paymethod: this.state.createOfferPayMethod
+          }),
+        })
+        .then((response) => response.json())
+        .then((res) => {
+          //console.log(res);
+          //alert(res.success);
+          //alert("a");
+          if (res.success === 1){
+            alert("IMPS payment method added successfully.");
+            this.setState()
+          }
+          else{alert("Error fetching details.");}
+        })
+        .done();
+      }
+      catch(error){
+        alert(error);
       }
     }
   }
   selectedOfferTypeMethod = (idx, value) => {
     this.setState({'offerType':value});
+  }
+  selectedOfferPayMethod = (idx, value) => {
+    this.setState({'offerPayMethod':value});
+  }
+  selectedCreateOfferPayMethod = (idx, value) => {
+    this.setState({'offerPayMethod':value});
   }
   isNumeric = (n) => {
     //alert(!isNaN(parseFloat(n)) && isFinite(n));

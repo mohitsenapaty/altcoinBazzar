@@ -178,6 +178,11 @@ create index  on TransactionTable(offer_id);
 create index transactionTable_seller_user_id on TransactionTable(seller_user_id);
 create index transactionTable_buyer_user_id on TransactionTable(buyer_user_id);
 
+alter table offertable add column paymethod varchar(10);
+alter table transactiontable add column paymethod varchar(10);
+alter table transactiontable add column payidproof varchar(100);
+alter table transactiontable add column payimageproof varchar(100);
+
 CREATE TABLE ether_wallet_test_master(
     wallet_id SERIAL,
     quant NUMERIC(10,6) NOT NULL,

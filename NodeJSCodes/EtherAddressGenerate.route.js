@@ -97,10 +97,7 @@ router.post('/:pwd/', function(req, resp, next){
                   if (err1){
                     console.log(err1);
                     resp.send(login_data);
-                    db_client.end(function(err2){
-
-                      if (err){console.log(err2); }
-                    });
+                    
                   }
                   else{
                     login_data['success'] = 1;
@@ -108,6 +105,10 @@ router.post('/:pwd/', function(req, resp, next){
                     //login_data.data.wallet_address = res1.rows[0].address;
                     resp.send(login_data);
                   }
+                  db_client.end(function(err2){
+
+                    if (err){console.log(err2); }
+                  });
                 });
                 //resp.send(login_data);
               }
@@ -118,10 +119,12 @@ router.post('/:pwd/', function(req, resp, next){
                 //var addrData = res.rows[iter_res];
                 //var addr = addrData["address"];
                 //update_addr_list(addr, addrData);
+              /*  
               db_client.end(function(err){
 
                 if (err){console.log(err);}
               });
+              */
             }
         });
      
