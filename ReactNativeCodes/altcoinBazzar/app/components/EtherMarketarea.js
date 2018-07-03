@@ -37,15 +37,15 @@ export default class EtherMarketArea extends React.Component{
       'kycDone':'No',
       'drawerClosed':true,
       'user_token':'',
-      'offerType':'Buy',
+      'offerType':'Buy Offers',
       'quant':'0.000000',
       'price':'0.00',
       'totalPrice':'0.00',
-      'offerType':'Sell Offers',
+      'offerType':'Buy Offers',
       'ticker':'ETH',
       'lastSet':'',
-      'offerPayMethod':'',
-      'createOfferPayMethod':'',
+      'offerPayMethod':'Any',
+      'createOfferPayMethod':'Any',
     };
     this.toggleDrawer = this.toggleDrawer.bind(this);
     this.setDrawerState = this.setDrawerState.bind(this);
@@ -168,7 +168,7 @@ export default class EtherMarketArea extends React.Component{
           <Text>Trade Area.</Text>
           <Text>Will display offers here with sorting parameters.</Text>
           <ModalDropdown options={['Sell Offers', 'Buy Offers']} 
-          defaultValue='Sell Offers' value = {this.state.offerType}
+          defaultValue='Buy Offers' value = {this.state.offerType}
           onSelect={this.selectedOfferTypeMethod}>
           </ModalDropdown>
           <ModalDropdown options={['Any', 'IMPS', 'PAYTM', 'UPI']} 
@@ -274,21 +274,22 @@ export default class EtherMarketArea extends React.Component{
     //validate input
     inputValidated = 0;
     if (this.state.ticker != 'ETH') {
-      alert("Invalid");
+      alert("Invalid ticker");
       return;
     }
-    if (!(this.state.offerType == 'Buy' || this.state.offerType == 'Sell')){
-      alert("Invalid");
+    if (!(this.state.offerType == 'Buy Offers' || this.state.offerType == 'Sell Offers')){
+      alert("Invalid offerType");
       return;
     }
     if (!(this.state.createOfferPayMethod == 'Any' || this.state.createOfferPayMethod == 'IMPS' || this.state.createOfferPayMethod == 'UPI' || this.state.createOfferPayMethod == 'PAYTM')){
-      alert("Invalid");
+      alert("Invalid pay method");
       return;
     }
     if (parseFloat(this.state.quant)*parseFloat(this.state.price) != parseFloat(this.state.totalPrice)){
-      alert("Invalid");
+      alert("Invalid price");
       return;
     }
+    inputValidated = 1;
     if (inputValidated != 0){
       try{
         //alert("a"); 
@@ -299,7 +300,7 @@ export default class EtherMarketArea extends React.Component{
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            user_id: this.state.user_id,
+            user_id: this.state.user_session.user_id,
             ticker: this.state.ticker,
             offerType: this.state.offerType,
             quant: this.state.quant,

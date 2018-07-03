@@ -78,12 +78,12 @@ registerUserRouter.post('/', function(req, resp, next) {
   }
   //console.log(SHA224(password, "utf8").toString('hex'));
   enc_pwd = SHA224(password, "utf8").toString('hex');
-  db_client.query("INSERT INTO user_login(user_name, name, phone, email, password) values ($1, $2, $3, $4, $5) RETURNING id;", [username, name, phone, email, enc_pwd], function(err, res)
+  db_client.query("INSERT INTO user_login(user_name, name, phone, email, password) values ($1, $2, $3, $4, $5) RETURNING user_id;", [username, name, phone, email, enc_pwd], function(err, res)
   {
     if (err){console.log(err); resp.send(register_data);}
     else
     { //console.log(res);
-      db_client.query("insert into user_profile(user_id, name, surname, kyc_status, creation_time) values ($1, $2, $3, false, CURRENT_TIMESTAMP);", [res.rows[0].id, name, surname], function(err1, res1){
+      db_client.query("insert into user_profile(user_id, name, surname, kyc_status, creation_time) values ($1, $2, $3, false, CURRENT_TIMESTAMP);", [res.rows[0].user_id, name, surname], function(err1, res1){
         if (err1){console.log(err1); resp.send(register_data);}
         else{
           console.log("Successfully registered");
@@ -152,7 +152,7 @@ updateIMPSRouter.post('/:pwd/', function(req, resp, next) {
     resp.send(login_data);
     return;
   }
-  if (got_id != userid){
+  if (got_id != user_id){
     resp.send(login_data);
     return;
   }
@@ -202,7 +202,7 @@ updateUPIRouter.post('/:pwd/', function(req, resp, next) {
     resp.send(register_data);
     return;
   }
-  if (got_id != userid){
+  if (got_id != user_id){
     resp.send(register_data);
     return;
   }
@@ -252,7 +252,7 @@ updatePAYTMRouter.post('/:pwd/', function(req, resp, next) {
     resp.send(register_data);
     return;
   }
-  if (got_id != userid){
+  if (got_id != user_id){
     resp.send(register_data);
     return;
   }

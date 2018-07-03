@@ -69,7 +69,7 @@ export default class Registerarea extends React.Component{
     if (this.state.password === this.state.confPassword){
 
       try{ 
-        fetch('http://52.27.104.46/registerUser/', {
+        fetch(GLOB_IP_DEV+'/registerUser/', {
           method: 'POST',
           headers: {
             Accept: 'application/json',

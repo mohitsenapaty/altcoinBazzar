@@ -101,8 +101,8 @@ router.post('/:pwd/', function(req, resp, next){
                   }
                   else{
                     login_data['success'] = 1;
-                    //login_data.data.wallet_present = 'Yes';
-                    //login_data.data.wallet_address = res1.rows[0].address;
+                    login_data.data.wallet_present = 'Yes';
+                    login_data.data.wallet_address = res1.rows[0].address;
                     resp.send(login_data);
                   }
                   db_client.end(function(err2){

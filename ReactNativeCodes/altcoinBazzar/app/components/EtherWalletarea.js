@@ -267,6 +267,40 @@ export default class EtherWalletarea extends React.Component{
   }
   generateAddress = () =>{
     alert("will generate ether address");
+    try{
+      //alert("a"); 
+      fetch(GLOB_IP_DEV + '/EtherAddressGenerate/'+this.state.user_token+'/', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: this.state.user_session.user_id,
+          
+        }),
+      })
+      .then((response) => response.json())
+      .then((res) => {
+        //console.log(res);
+        //alert(res.success);
+        //alert("a");
+        if (res.success === 1){
+          //alert(JSON.stringify(res));
+          this.setState({'etherAddressAvailable':'Yes'});
+          this.setState({'etherAddress':res.data.wallet_address});
+        }
+        else{
+          //alert(JSON.stringify(res));
+          this.setState({'etherAddressAvailable':'No'});
+        }
+        //else{alert("Error fetching details.");}
+      })
+      .done();
+    }
+    catch(error){
+      alert(error);
+    }
   }
   logout = () => {
     try{

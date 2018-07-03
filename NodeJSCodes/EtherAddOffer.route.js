@@ -31,23 +31,30 @@ router.post('/:pwd/', function(req, resp, next){
     return;
   }
   if (got_id != userid){
+    console.log(got_id);
+    console.log(userid);
     resp.send(login_data);
+    console.log("01");
     return;
   }
   if (ticker != 'ETH'){
     resp.send(login_data);
+    console.log("02");
     return;
   }
   if (quant * price != totalPrice){
     resp.send(login_data);
+    console.log("03");
     return;   
   }
-  if (!(offerType == 'Buy' || offerType == 'Sell')){
+  if (!(offerType == 'Buy Offers' || offerType == 'Sell Offers')){
     resp.send(login_data);
+    console.log("04");
     return;
   }
   if (!(paymethod == 'Any' || paymethod == 'IMPS' || paymethod == 'UPI' || paymethod == 'PAYTM')){
     resp.send(login_data);
+    console.log("1");
     return;
   }
 
@@ -59,7 +66,8 @@ router.post('/:pwd/', function(req, resp, next){
   
   //check wallet first -> add offer in case of buy offer, just create the offer
 
-  if (offerType == 'Buy'){
+  if (offerType == 'Buy Offers'){
+    console.log("11");
     var db_client = new pg.Client(conString);
     db_client.connect(function(err){
 

@@ -127,7 +127,7 @@ export default class Bankarea extends React.Component{
           
           </ModalDropdown>
           
-          <TextInput style={styles.Input} onChangeText={(upiAddress)=>this.setState({upiAddress})} value={this.state.upiAddress}  placeholder='PAYTM number'></TextInput>
+          <TextInput style={styles.Input} onChangeText={(upiAddress)=>this.setState({upiAddress})} value={this.state.upiAddress}  placeholder='UPI Address'></TextInput>
           <TextInput secureTextEntry={true} onChangeText={(password)=>this.setState({password})} value={this.state.password} style={styles.Input} placeholder='Password'></TextInput>
           <TouchableOpacity onPress={this.updateBank} style={styles.ButtonContainer}>
             <Text>Update UPI</Text>

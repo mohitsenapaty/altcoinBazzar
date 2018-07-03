@@ -183,6 +183,11 @@ alter table transactiontable add column paymethod varchar(10);
 alter table transactiontable add column payidproof varchar(100);
 alter table transactiontable add column payimageproof varchar(100);
 
+alter table offertable alter column price type numeric(16,6);
+alter table offertable alter column totalprice type numeric(16,6);
+alter table transactiontable alter column totalprice type numeric(16,6);
+alter table transactiontable alter column price type numeric(16,6);
+
 CREATE TABLE ether_wallet_test_master(
     wallet_id SERIAL,
     quant NUMERIC(10,6) NOT NULL,
